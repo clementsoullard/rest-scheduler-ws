@@ -14,6 +14,8 @@ import com.clement.magichome.FileService;
 import com.clement.magichome.TvCheckScheduler;
 import com.clement.magichome.dto.CreditResult;
 import com.clement.magichome.dto.MinutesPerChannel;
+import com.clement.magichome.dto.graph.JSChart;
+import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
 import com.clement.magichome.service.LogRepository;
@@ -59,10 +61,12 @@ public class SchedulerController {
 		return tvStatus;
 	}
 
-	@RequestMapping("/test")
-	public AggregationResults<MinutesPerChannel> test() throws Exception {
-		AggregationResults<MinutesPerChannel> mpc = logRepositoryImpl.getMinutesPerChannel();
-		return mpc;
+	@RequestMapping("/chart-channel")
+	public Wrapper test() throws Exception {
+		JSChart jsChart = logRepositoryImpl.getMinutesPerChannel();
+		Wrapper wrapper = new Wrapper();
+		wrapper.setJSChart(jsChart);
+		return wrapper;
 	}
 
 	@RequestMapping("/test2")
