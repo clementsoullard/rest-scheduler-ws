@@ -1,0 +1,4 @@
+// Requete pour calculer quelle sont les chaine des télévision les plus regardées
+db.log.aggregate( [
+   { $group: { _id: "$channel", totalPop: { $sum: "$minutes" } } }
+] )
