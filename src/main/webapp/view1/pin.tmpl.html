@@ -1,0 +1,26 @@
+<md-dialog aria-label="Mango (Fruit)"  ng-cloak>
+<form>
+  <md-dialog-content>
+            <div class="md-dialog-content">
+        
+                <md-input-container class="md-block">
+                    <label>Password:</label>
+                    
+                    {{requiredPin}}
+                    <input ng-model="vm.password" type="password" required>
+                </md-input-container>
+            </div>
+        </md-dialog-content>
+        
+  <md-dialog-actions layout="row">
+       <span flex></span>
+      <md-button ng-click="answer(-1)">
+       Annuler
+      </md-button>
+      <md-button ng-click="answer(vm.password,requiredPin)">
+        OK
+      </md-button>
+    </md-dialog-actions>
+      </form>  
+      
+      </md-dialog>
