@@ -1,4 +1,4 @@
-package com.clement.magichome;
+package com.clement.magichome.scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,20 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
 import com.clement.magichome.object.TVWrapper;
 import com.clement.magichome.service.ChannelRepository;
+import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.google.gson.Gson;
 
@@ -48,6 +52,9 @@ public class TvCheckScheduler {
 
 	@Resource
 	private PropertyManager propertyManager;
+
+	@Autowired
+	private DayScheduler dayScheduler;
 
 	private Gson gson = new Gson();
 
@@ -97,8 +104,9 @@ public class TvCheckScheduler {
 			tvWrapper = new TVWrapper();
 		}
 		tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
-		tvWrapper.getResult().setFutureCredit(DayScheduler.getFutureCredit());
-
+		if (dayScheduler.getFutureCredit() != null) {
+			tvWrapper.getResult().setFutureCredit(dayScheduler.getFutureCredit());
+		}
 	}
 
 	/** *Cache map for channel name */
@@ -170,11 +178,10 @@ public class TvCheckScheduler {
 	private InputStream getStreamStanbyStateFromLivebox() {
 		try {
 			String uri;
-			if(propertyManager.getProductionMode()){
-			uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
-			}
-			else{
-				uri ="http://localhost:8080/tvscheduler/test/livebox-sample-inactif.json";
+			if (propertyManager.getProductionMode()) {
+				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
+			} else {
+				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-inactif.json";
 			}
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();

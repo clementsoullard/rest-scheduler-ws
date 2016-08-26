@@ -31,7 +31,7 @@ public class TVStatus {
 
 	public String getRemainingTime() {
 		if (remainingSecond == null) {
-			return "Statut Non défini";
+			return "Temps restant non disponible";
 		} else if (remainingSecond == -2) {
 			return "Télé activée sans limite de temps";
 		} else if (remainingSecond <= 0) {
