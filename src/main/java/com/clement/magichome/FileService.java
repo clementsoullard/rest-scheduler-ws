@@ -72,6 +72,10 @@ public class FileService {
 	 * @return true is the TV is on at the scheduler level.
 	 */
 	boolean getTvStatusRelay() {
+		if(!propertyManager.getProductionMode()){
+			LOG.debug("In debug mode return ing true by default");
+			return true;
+		}
 		File file = new File(propertyManager.getPathStatus());
 		try {
 			if (file.exists()) {

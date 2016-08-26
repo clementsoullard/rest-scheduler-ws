@@ -16,28 +16,42 @@
  <img src="../img/tele.jpg" width="175" height="182" alt="" />	
  </div>
  <div class="row">
-<button ng-click="tv(-2)")" class="btn btn-success">ON</button>
-<button ng-click="tv(-1)" class="btn btn-danger">OFF</button>
-<button ng-click="tv(1800)" class="btn btn-info">30mn</button>
-<button ng-click="tv(3600)" class="btn btn-info">60mn</button>
+<button ng-click="tv(-2)")" class="col-sm-1 btn btn-success">ON</button>
+<button ng-click="tv(-1)" class="col-sm-1 btn btn-danger">OFF</button>
+<button ng-click="tv(1800)" class="col-sm-1 btn btn-info">30mn</button>
+<button ng-click="tv(3600)" class="col-sm-1 btn btn-info">60mn</button>
 </div>
 <br>
-<div class="row">
-<span style="width :230px"  ng-if="tvstatus.data.activeStandbyState==1" class="btn btn-danger">
+<div ng-if="tvstatus.data.activeStandbyState==1"  class="row">
+<span  class="col-sm-1  label label-danger">
 TV Off </span>	
-<span style="width :230px" ng-if="tvstatus.data.activeStandbyState==0" class="btn btn-success">
+
+</div>
+
+<div ng-if="tvstatus.data.activeStandbyState==0" class="row">
+<span class="col-sm-1 label label-success">
   TV On
 </span>
+
+<span class="col-sm-1" ng-if="tvstatus.data.playedMediaId"> Chaine </span> <span  class="class="col-sm-1 label label-default">{{tvstatus.data.playedMediaId}}</span>			
 </div>
-<div>
-<p ng-if="tvstatus.data.playedMediaId">La chaine regardee est  {{tvstatus.data.playedMediaId}}</p>			
+
+<div class="row">
 <p ng-show="tvstatus.remainingTime">{{tvstatus.remainingTime}}</p>	
  </div>
 
+<div>
+<div ng-if="tvstatus.futureCredit" class="row">
+
+<p>Le prochain crédit aura lieu à {{tvstatus.futureCredit.dateOfCredit| date:'MM-dd HH:mm'}}</p>			
+<p>{{tvstatus.futureCredit.amountOfCreditInMinutes}} minutes</p>	
+ </div>
+
+
 <div class="row">
-<button ng-click="showAdvanced($event,-20,'desobeissqnce')" class="btn btn-danger">Désobéissance</button>
-<button ng-click="showAdvanced($event,-20,'paresse')" class="btn btn-danger">Paresse</button>
-<button ng-click="showAdvanced($event,20,'recompense')" class="btn btn-success">Récompense</button>
+<button ng-click="showAdvanced($event,-20,'desobeissqnce')" class="col-sm-1 btn btn-danger">Désobéit</button>
+<button ng-click="showAdvanced($event,-20,'paresse')" class="col-sm-1 btn btn-danger">Paresse</button>
+<button ng-click="showAdvanced($event,20,'recompense')" class="col-sm-1 btn btn-success">Récompense</button>
 </div>
 
 
