@@ -123,13 +123,13 @@ public class DayScheduler {
 		}
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-			LOG.debug("Schedule another " + minutesGranted + " on " + futureDate);
+			LOG.debug("Schedule " + minutesGranted + "minutes  on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
 		} else {
 			creditTask.setMinutes(minutesGranted);
-			LOG.debug("Already schedulled task, no need to schedule another one just updating the minutes");
+			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
 
 	}
