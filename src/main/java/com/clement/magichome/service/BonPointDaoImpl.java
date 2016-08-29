@@ -26,7 +26,7 @@ public class BonPointDaoImpl {
 
 	public List<BonPoint> findBonPointsAvailable() {
 		try {
-			BasicQuery query = new BasicQuery("{pointConsumed: {$ne: 0}}");
+			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$ne: 0}},{pointConsumed:{$gt: -1000}}]}");
 			LOG.debug("Construction de la requete effectuée");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
@@ -50,7 +50,24 @@ public class BonPointDaoImpl {
 
 	public List<BonPoint> findNegativeBonPointsAvailable() {
 		try {
-			BasicQuery query = new BasicQuery("{pointConsumed: {$lt: 0}}");
+			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$lt: 0}},{pointConsumed:{$gt: -1000}}]}");
+			LOG.debug("Construction de la requete effectuée");
+			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			return bonPoints;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * The day privé de Télé are marked with -1000
+	 * 
+	 * @return
+	 */
+	public List<BonPoint> findJourPriveDeTele() {
+		try {
+			BasicQuery query = new BasicQuery("{pointConsumed: {$eq: -1000}}");
 			LOG.debug("Construction de la requete effectuée");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
