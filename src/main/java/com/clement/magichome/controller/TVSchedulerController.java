@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clement.magichome.FileService;
-import com.clement.magichome.TvCheckScheduler;
 import com.clement.magichome.dto.CreditResult;
 import com.clement.magichome.dto.Punition;
 import com.clement.magichome.dto.PunitionResult;
@@ -19,7 +17,9 @@ import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
+import com.clement.magichome.scheduler.TvCheckScheduler;
 import com.clement.magichome.service.BonPointRepository;
+import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.LogRepositoryImpl;
 

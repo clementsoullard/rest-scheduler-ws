@@ -1,4 +1,4 @@
-package com.clement.magichome;
+package com.clement.magichome.service;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +12,9 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+
+import com.clement.magichome.PropertyManager;
+import com.clement.magichome.scheduler.TvCheckScheduler;
 
 @Repository
 public class FileService {
@@ -71,7 +74,11 @@ public class FileService {
 	 * 
 	 * @return true is the TV is on at the scheduler level.
 	 */
-	boolean getTvStatusRelay() {
+	public boolean getTvStatusRelay() {
+		if(!propertyManager.getProductionMode()){
+			LOG.debug("In debug mode return ing true by default");
+			return true;
+		}
 		File file = new File(propertyManager.getPathStatus());
 		try {
 			if (file.exists()) {
@@ -99,7 +106,7 @@ public class FileService {
 	 * 
 	 * @return true is the TV is on at the scheduler level.
 	 */
-	Integer getSecondRemaining() {
+	public Integer getSecondRemaining() {
 		File file = new File(propertyManager.getPathRemaining());
 		try {
 			if (file.exists()) {

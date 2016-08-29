@@ -26,9 +26,8 @@ public class BonPointDaoImpl {
 
 	public List<BonPoint> findBonPointsAvailable() {
 		try {
-			BasicQuery query = new BasicQuery("{pointConsumed: {$ne: 0}}");
-			LOG.debug("Construction de la requete effectuée");
-			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$ne: 0}},{pointConsumed:{$gt: -1000}}]}");
+					List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
@@ -39,7 +38,6 @@ public class BonPointDaoImpl {
 	public List<BonPoint> findPostiveBonPointsAvailable() {
 		try {
 			BasicQuery query = new BasicQuery("{pointConsumed: {$gt: 0}}");
-			LOG.debug("Construction de la requete effectuée");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
 		} catch (Exception e) {
@@ -50,14 +48,46 @@ public class BonPointDaoImpl {
 
 	public List<BonPoint> findNegativeBonPointsAvailable() {
 		try {
-			BasicQuery query = new BasicQuery("{pointConsumed: {$lt: 0}}");
-			LOG.debug("Construction de la requete effectuée");
+			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$lt: 0}},{pointConsumed:{$gt: -1000}}]}");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	/**
+	 * The day privé de Télé are marked with -1000
+	 * 
+	 * @return
+	 */
+	public boolean isPriveDeTele() {
+		try {
+			BasicQuery query = new BasicQuery("{pointConsumed: -1000}");
+			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			return bonPoints.size() > 0;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return false;
+	}
+
+	/**
+	 * The day privé de Télé are marked with -1000
+	 * 
+	 * @return
+	 */
+	public void remove1DayPriveDeTele() {
+		try {
+			BasicQuery query = new BasicQuery("{pointConsumed: -1000}");
+			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			if (bonPoints.size() > 0) {
+				mongoTemplate.remove(bonPoints.get(0));
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 
 	public Integer sumBonPoint() {

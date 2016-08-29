@@ -11,12 +11,18 @@ import java.text.NumberFormat;
  */
 public class TVStatus {
 
-	NumberFormat nf = new DecimalFormat("00");
+	private final static NumberFormat nf = new DecimalFormat("00");
+
 	/** Gives the status of the relay */
 	private Boolean relayStatus;
 
+	/** Number of seconds remaining */
 	private Integer remainingSecond;
 
+	/** Number of seconds remaining */
+	private FutureCredit futureCredit;
+
+	/** The data from the TV */
 	private TVData data;
 
 	public Integer getRemainingSecond() {
@@ -25,7 +31,7 @@ public class TVStatus {
 
 	public String getRemainingTime() {
 		if (remainingSecond == null) {
-			return "Statut Non défini";
+			return "Temps restant non disponible";
 		} else if (remainingSecond == -2) {
 			return "Télé activée sans limite de temps";
 		} else if (remainingSecond <= 0) {
@@ -57,5 +63,14 @@ public class TVStatus {
 	public void setRelayStatus(Boolean relayStatus) {
 		this.relayStatus = relayStatus;
 	}
+
+	public FutureCredit getFutureCredit() {
+		return futureCredit;
+	}
+
+	public void setFutureCredit(FutureCredit futureCredit) {
+		this.futureCredit = futureCredit;
+	}
+	
 
 }

@@ -1,4 +1,4 @@
-package com.clement.magichome;
+package com.clement.magichome.scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,16 +17,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.stereotype.Component;
 
+import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
 import com.clement.magichome.object.TVWrapper;
 import com.clement.magichome.service.ChannelRepository;
+import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.google.gson.Gson;
 
@@ -52,6 +53,9 @@ public class TvCheckScheduler {
 	@Resource
 	private PropertyManager propertyManager;
 
+	@Autowired
+	private DayScheduler dayScheduler;
+
 	private Gson gson = new Gson();
 
 	private TVWrapper tvWrapper = new TVWrapper();
@@ -69,39 +73,44 @@ public class TvCheckScheduler {
 	 * Every 15 sec. check the status of the TV and .
 	 */
 	@Scheduled(cron = "*/15 * * * * *")
-	public void updateSandbyStatus() throws IOException {
-		InputStreamReader xml = new InputStreamReader(getStreamStanbyStateFromLivebox());
-		tvWrapper = gson.fromJson(xml, TVWrapper.class);
-
-		Integer activeStandbyState = tvWrapper.getResult().getData().getActiveStandbyState();
-		Boolean standbyState = (activeStandbyState == 1);
-		if (!standbyState) {
-			Integer channel = tvWrapper.getResult().getData().getPlayedMediaId();
-			if (channel != null) {
-				Float minutes = minutesPerChannel.get(channel);
-				if (minutes == null) {
-					minutes = 0F;
+	public void updateSandbyStatus() {
+		InputStream is = getStreamStanbyStateFromLivebox();
+		if (is != null) {
+			InputStreamReader xml = new InputStreamReader(is);
+			tvWrapper = gson.fromJson(xml, TVWrapper.class);
+			Integer activeStandbyState = tvWrapper.getResult().getData().getActiveStandbyState();
+			Boolean standbyState = (activeStandbyState == 1);
+			if (!standbyState) {
+				Integer channel = tvWrapper.getResult().getData().getPlayedMediaId();
+				if (channel != null) {
+					Float minutes = minutesPerChannel.get(channel);
+					if (minutes == null) {
+						minutes = 0F;
+					}
+					minutes += .25F;
+					minutesPerChannel.put(channel, minutes);
 				}
-				minutes += .25F;
-				minutesPerChannel.put(channel, minutes);
-				// LOG.debug("Chaine=" + channel + ", minute=" + minutes);
 			}
+			fileService.writeStandby(standbyState);
+			Boolean relayStatus = fileService.getTvStatusRelay();
+			tvWrapper.getResult().setRelayStatus(relayStatus);
+
+			if (!relayStatus && !standbyState) {
+				pressOnOffButton();
+			}
+			LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
+
+		} else {
+			tvWrapper = new TVWrapper();
 		}
-
-		fileService.writeStandby(standbyState);
-		Boolean relayStatus = fileService.getTvStatusRelay();
-		tvWrapper.getResult().setRelayStatus(relayStatus);
-
 		tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
-		if (!relayStatus && !standbyState) {
-			pressOnOffButton();
+		if (dayScheduler.getFutureCredit() != null) {
+			tvWrapper.getResult().setFutureCredit(dayScheduler.getFutureCredit());
 		}
-		LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus + " ");
-
 	}
 
 	/** *Cache map for channel name */
-	Map<Integer, String> channelNameCache = new HashMap<>();
+	Map<Integer, String> channelNameCache = new HashMap<Integer, String>();
 
 	/**
 	 * Every 15 sec. check the status of the TV and .
@@ -166,13 +175,23 @@ public class TvCheckScheduler {
 	 * @return
 	 * @throws IOException
 	 */
-	private InputStream getStreamStanbyStateFromLivebox() throws IOException {
-		String uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
-		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Accept", "application/xml");
-		return connection.getInputStream();
+	private InputStream getStreamStanbyStateFromLivebox() {
+		try {
+			String uri;
+			if (propertyManager.getProductionMode()) {
+				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
+			} else {
+				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-inactif.json";
+			}
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/xml");
+			return connection.getInputStream();
+		} catch (IOException e) {
+			LOG.error("Could not connect to the live box");
+			return null;
+		}
 	}
 
 	/**
