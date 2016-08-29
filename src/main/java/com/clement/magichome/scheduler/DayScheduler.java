@@ -1,8 +1,11 @@
 package com.clement.magichome.scheduler;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
 
@@ -34,6 +37,8 @@ public class DayScheduler {
 
 	public final static int TIME_IS_PASSED = -1;
 
+	DateFormat df = new SimpleDateFormat("EEEEE d MMM");
+
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
 
@@ -43,8 +48,16 @@ public class DayScheduler {
 	@Autowired
 	private TaskScheduler taskScheduler;
 
+	/**
+	 * The future credit information that will be displayed, it probably make
+	 * sense to merge it into a single class.
+	 */
 	private FutureCredit futureCredit;
+
+	/** Credit task */
 	private CreditTask creditTask;
+	/** */
+	private ScheduledFuture<CreditTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
 	@Scheduled(cron = "0 * * * * *")
@@ -53,27 +66,53 @@ public class DayScheduler {
 		LOG.debug("Checking if task is here at  " + new Date());
 
 		Calendar calendar = Calendar.getInstance();
-		//
+
 		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int minutesAllowed = 0;
 
-		minutesAllowed = checkTimeToGive(dayOfWeek, calendar);
+		/* **/
+		int minutesAllowed = -1;
 
-		/** If date is passed, we should check the other day */
-		if (minutesAllowed == TIME_IS_PASSED) {
-			LOG.debug("Time is passed checking next day");
-			calendar.add(Calendar.DATE, 1);
-			dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-			minutesAllowed = checkTimeToGive(dayOfWeek, calendar);
+		//
+
+		minutesAllowed = checkTimeToGive(calendar);
+		LOG.debug("Checking for date " + df.format(calendar.getTime()) + " minutes allowed = " + minutesAllowed);
+
+		/**
+		 * dans le cas ou nous sommes privé de tele alors le calendrier commence
+		 * à la dernière fois (si quelque chose était déjà programmé
+		 */
+		if (bonPointDaoImpl.isPriveDeTele() && futureCredit != null) {
+			calendar.setTime(futureCredit.getDateOfCredit());
+			LOG.debug("Une punition s'est produite dans l'entre deux. On recommence depuis "
+					+ df.format(calendar.getTime()));
+			scheduledFuture.cancel(false);
+			creditTask = null;
+			futureCredit = null;
 		}
 
+		/**
+		 * This is to avoid that the calendar loop eternally, if no day ever
+		 * give some minutes to watch the TV.
+		 */
+		int numberOfDayIntheFuture = 0;
+
+		while (minutesAllowed < 0 && numberOfDayIntheFuture < 20) {
+			calendar.add(Calendar.DATE, 1);
+			minutesAllowed = checkTimeToGive(calendar);
+			LOG.debug("Checking for date " + df.format(calendar.getTime()) + " minutes allowed = " + minutesAllowed);
+			numberOfDayIntheFuture++;
+		}
+
+		/**
+		 * The future date is determined here.
+		 */
 		Date futureDate = calendar.getTime();
 
 		LOG.debug("scheduling change at  " + futureDate);
 		Integer minuteModifierForBonPoint = bonPointDaoImpl.pointToDistribute(-minutesAllowed, minutesAllowed / 2);
 
 		int minutesGranted = minutesAllowed + minuteModifierForBonPoint;
-		/** */
+		/** Create the future task */
 		if (futureCredit == null) {
 			futureCredit = new FutureCredit();
 			futureCredit.setAmountOfCreditInMinutes(minutesGranted);
@@ -82,12 +121,12 @@ public class DayScheduler {
 			futureCredit.setAmountOfCreditInMinutes(minutesGranted);
 			LOG.debug("Already prvisionned future, no need to schedule another one just updating the minutes");
 		}
-
+		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-			LOG.debug("Scheddule another " + minutesGranted + " on " + futureDate);
+			LOG.debug("Schedule another " + minutesGranted + " on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
-			taskScheduler.schedule(creditTask, futureDate);
+			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
 		} else {
 			creditTask.setMinutes(minutesGranted);
 			LOG.debug("Already schedulled task, no need to schedule another one just updating the minutes");
@@ -111,8 +150,10 @@ public class DayScheduler {
 	 * @return the number of minutes to be granted. If the time where it should
 	 *         be granted is passed, then -1 is returned.
 	 */
-	private int checkTimeToGive(int dayOfWeek, Calendar calendarDateToGrantMinutes) {
+	private int checkTimeToGive(Calendar calendarDateToGrantMinutes) {
+		int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
 		int minutesAllowed = 0;
+
 		//
 		if (dayOfWeek == Calendar.WEDNESDAY) {
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 16);
@@ -126,7 +167,9 @@ public class DayScheduler {
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 11);
 			calendarDateToGrantMinutes.set(Calendar.MINUTE, 00);
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
-			minutesAllowed = 60;
+			// minutesAllowed = 60;
+			// During school, there are no minute allowed.
+			minutesAllowed = -1;
 		} else if (dayOfWeek == Calendar.SATURDAY) {
 			//
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 11);
@@ -145,9 +188,19 @@ public class DayScheduler {
 		 * we should return -1;
 		 */
 		if (new Date().after(calendarDateToGrantMinutes.getTime())) {
+			LOG.debug("The current date is after " + calendarDateToGrantMinutes.getTime()
+					+ ", we must check the next day.");
 			return -1;
 		}
 
+		if (bonPointDaoImpl.isPriveDeTele() && minutesAllowed > 0) {
+			LOG.debug("The guy is deprived , we must check the next day.");
+			calendarDateToGrantMinutes.add(Calendar.DATE, 1);
+			dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
+			bonPointDaoImpl.remove1DayPriveDeTele();
+			minutesAllowed = -1;
+		}
+		LOG.debug("For day " + calendarDateToGrantMinutes.getTime() + ", " + minutesAllowed + " are granted.");
 		return minutesAllowed;
 	}
 

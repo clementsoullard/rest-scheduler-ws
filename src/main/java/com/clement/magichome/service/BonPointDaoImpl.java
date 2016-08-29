@@ -65,16 +65,34 @@ public class BonPointDaoImpl {
 	 * 
 	 * @return
 	 */
-	public List<BonPoint> findJourPriveDeTele() {
+	public boolean isPriveDeTele() {
 		try {
 			BasicQuery query = new BasicQuery("{pointConsumed: {$eq: -1000}}");
 			LOG.debug("Construction de la requete effectuée");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
-			return bonPoints;
+			return bonPoints.size() > 0;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
-		return null;
+		return false;
+	}
+
+	/**
+	 * The day privé de Télé are marked with -1000
+	 * 
+	 * @return
+	 */
+	public void remove1DayPriveDeTele() {
+		try {
+			BasicQuery query = new BasicQuery("{pointConsumed: {$eq: -1000}}");
+			LOG.debug("Construction de la requete effectuée");
+			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			if (bonPoints.size() > 0) {
+				mongoTemplate.remove(bonPoints.get(0));
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 
 	public Integer sumBonPoint() {
