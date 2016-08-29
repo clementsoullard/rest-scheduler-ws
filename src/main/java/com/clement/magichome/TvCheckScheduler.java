@@ -14,10 +14,13 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
@@ -93,7 +96,7 @@ public class TvCheckScheduler {
 		if (!relayStatus && !standbyState) {
 			pressOnOffButton();
 		}
-		LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
+		LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus + " ");
 
 	}
 
