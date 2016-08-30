@@ -97,8 +97,7 @@ function DialogController($scope, $mdDialog,pinInfo,punition) {
 	console.log('>>>>>>> '+punition.point);
 	
 	$scope.pinInfo=pinInfo;
-	$scope.pinEntered='0';
-
+	
 	
 	  $scope.hide = function() {
 	    $mdDialog.hide();

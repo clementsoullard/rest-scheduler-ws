@@ -1,5 +1,5 @@
-<md-dialog  ng-cloak>
-<form autocomplete="off">
+<md-dialog  ng-cloak >
+<form  ng-submit="answer(pinEntered)">
   <md-dialog-content>
             <div class="md-dialog-content">
         Challenge: {{pinInfo.middlePin}}
@@ -12,10 +12,10 @@
         
   <md-dialog-actions layout="row">
        <span flex></span>
-      <md-button ng-click="answer(-1)">
+      <md-button  type="button" ng-click="answer(-1)">
        Annuler
       </md-button>
-      <md-button ng-click="answer(pinEntered)">
+      <md-button  type="submit" ng-click="answer(pinEntered)">
         OK
       </md-button>
     </md-dialog-actions>
