@@ -74,7 +74,7 @@ public class TVSchedulerController {
 		bonPointRepository
 				.save(new BonPoint(punition.getValue(), punition.getValue(), new Date(), punition.getRationale()));
 		PunitionResult punitionResult = new PunitionResult();
-		punitionResult.setMessage("La punition " + punition.getValue() + " a été appliquée");
+		punitionResult.setMessage("La punition a été appliquée");
 		return punitionResult;
 	}
 }

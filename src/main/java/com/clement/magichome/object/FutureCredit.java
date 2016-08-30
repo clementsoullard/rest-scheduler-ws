@@ -1,5 +1,7 @@
 package com.clement.magichome.object;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -9,7 +11,8 @@ import java.util.Date;
  *
  */
 public class FutureCredit {
-	
+
+	public final static DateFormat df=new SimpleDateFormat("EEEEE dd, HH:mm");
 	/** */
 	private Date dateOfCredit;
 	
@@ -30,6 +33,10 @@ public class FutureCredit {
 
 	public void setAmountOfCreditInMinutes(Integer amountOfCreditInMinutes) {
 		this.amountOfCreditInMinutes = amountOfCreditInMinutes;
+	}
+
+	public String getDateStr() {
+		return df.format(dateOfCredit);
 	}
 
 }

@@ -1,7 +1,7 @@
 /* app css stylesheet */
 
 .btn-tv{
-  margin: 1px;
+  margin:1px;
 }
 
 .menu {
@@ -22,7 +22,9 @@
 .menu > li {
   display: inline;
 }
-
+.boxing-panel {
+  width: 500px;
+}
 .menu > li:before {
   content: "|";
   padding-right: 0.3em;
