@@ -34,17 +34,28 @@ angular.module('myApp.television', ['ngRoute'])
             $scope.tvstatus = data;
         });
 	/**
-	 * Retrieve the TV status
+	 * Control the TV
 	 * 
 	 */
 
  $scope.tv = function (sec) {
+		console.log('Appel WS tv control 2');
     $http.get('/tvscheduler/credit?value='+sec).
         success(function(data) {
+			console.log('Sussès de l\'appel WS tv control');
+            $scope.punitionMessage = 'Les minutes ont été attribuées';
             $scope.tvstatus = data.status;
-        })
+			$scope.error = false;
+        }).
+		error(function(data) {
+			console.log('Echec de l\'appel WS tv control');
+            $scope.punitionMessage = 'Un problème a eu lieu';
+			$scope.error = true;
+		})
 		};
-		
+		/**
+		 * Punishment
+		 */
  $scope.punir = function (point,rationale) {
     $http.post('/tvscheduler/punition',{'value': point, 'rationale': rationale}).
         success(function(data) {
@@ -52,16 +63,17 @@ angular.module('myApp.television', ['ngRoute'])
             $scope.error = false;
         }).
 		error(function(data) {
+			console.log('Echec de l\'appel WS punir');
             $scope.punitionMessage = 'Un problème a eu lieu';
 			$scope.error = true;
 		})
 	};
 /**
- * Confirmation dialog
+ * Confirmation dialog for punition
  */
 
 			  
-			  $scope.showAdvanced = function(ev,point,rationale) {
+$scope.showAdvancedConfirmPunition = function(ev,point,rationale) {
 				    var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
 				    $mdDialog.show({
 				       controller: DialogController,
@@ -74,18 +86,52 @@ angular.module('myApp.television', ['ngRoute'])
 				    })
 				    .then(function(result) {
 					    console.log('Resultat '+result.isOk);
-				        $scope.punitionMessage = 'Le code entré n\'est pas correct';
-						$scope.error = true;
 
 					if(result.isOk){
 					    $scope.punir(point,rationale);
+					}
+					else{
+				        $scope.punitionMessage = 'Le code entré n\'est pas correct';
+						$scope.error = true;
 					}
 					 }, function() {
 					    	console.log('Echec');
 					  });
 			  };
 
-				  
+/**
+* Confirmation dialog for punition
+*/
+
+			  			  
+			  $scope.showAdvancedControlTV = function(ev,credit) {
+			  				    var useFullScreen = ($mdMedia('sm') || $mdMedia('xs'))  && $scope.customFullscreen;
+			  					console.log('>> Appel de showAdvancedControlTV '+ credit);
+			  				    $mdDialog.show({
+			  				       controller: DialogController,
+			  				       templateUrl: 'television/pin.tmpl.html',
+			  				       locals:{pinInfo: pinInfo, punition: {credit: credit}}, 
+			  				      parent: angular.element(document.body),
+			  				      targetEvent: ev,
+			  				      clickOutsideToClose:true,
+			  				      fullscreen: useFullScreen
+			  				    })
+			  				    .then(function(result) {
+			  					    console.log('Resultat controle PIN TV '+result.isOk);
+
+			  					if(result.isOk){
+			  					    console.log('Appel de TV credit');
+					  				$scope.tv(credit);
+			  					}else{
+			  				        $scope.punitionMessage = 'Le code entré n\'est pas correct';
+			  						$scope.error = true;
+			  					}
+			  					 }, function() {
+			  					    	console.log('Echec');
+			  					  });
+			  			  };
+		
+			  
 			  
 }]);
 
@@ -93,8 +139,9 @@ angular.module('myApp.television', ['ngRoute'])
 
 function DialogController($scope, $mdDialog,pinInfo,punition) {
 	
-	console.log('>>>>>>> '+pinInfo.middlePin);
-	console.log('>>>>>>> '+punition.point);
+	console.log('>>>>>>> '+ pinInfo.middlePin);
+	console.log('>>>>>>> '+ punition.point);
+	console.log('>>>>>>> '+ punition.credit);
 	
 	$scope.pinInfo=pinInfo;
 	
@@ -107,6 +154,7 @@ function DialogController($scope, $mdDialog,pinInfo,punition) {
 	  };
 	  $scope.answer = function(answer) {
 		  var completePin=$scope.pinInfo.requiredPin;
+		 console.log('Comparaison entre '+ answer +' et ' + completePin);
 		  if(answer==completePin){
 			   $mdDialog.hide({isOk: true});
 		  }else{

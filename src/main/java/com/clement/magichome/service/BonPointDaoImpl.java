@@ -24,10 +24,10 @@ public class BonPointDaoImpl {
 	@Autowired
 	private BonPointRepository bonPointRepository;
 
-	public List<BonPoint> findBonPointsAvailable() {
+	public List<BonPoint> findPointsAvailable() {
 		try {
 			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$ne: 0}},{pointConsumed:{$gt: -1000}}]}");
-					List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
+			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			return bonPoints;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
@@ -35,7 +35,39 @@ public class BonPointDaoImpl {
 		return null;
 	}
 
-	public List<BonPoint> findPostiveBonPointsAvailable() {
+	/**
+	 * This compensate the good and the bad points.
+	 */
+	public void compensateBonEtMauvaisPoint() {
+		List<BonPoint> bonPoints = findBonPointsAvailable();
+		List<BonPoint> mauvaisPoints = findMauvaisPointsAvailable();
+
+		Integer sumBonPoint = 0;
+
+		for (BonPoint bonPoint : bonPoints) {
+			sumBonPoint += bonPoint.getPointConsumed();
+		}
+		Integer sumMauvaisPoint = 0;
+		for (BonPoint mauvaisPoint : mauvaisPoints) {
+			sumMauvaisPoint += mauvaisPoint.getPointConsumed();
+		}
+		int difference = sumBonPoint + sumMauvaisPoint;
+		Integer bonPointToRemove;
+		if (difference > 0) {
+			bonPointToRemove = sumBonPoint - difference;
+		} else {
+			bonPointToRemove = sumMauvaisPoint - difference;
+		}
+		removePunition(bonPointToRemove);
+		removePunition(-bonPointToRemove);
+	}
+
+	/**
+	 * 
+	 * @return
+	 * 
+	 */
+	public List<BonPoint> findBonPointsAvailable() {
 		try {
 			BasicQuery query = new BasicQuery("{pointConsumed: {$gt: 0}}");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
@@ -46,7 +78,16 @@ public class BonPointDaoImpl {
 		return null;
 	}
 
-	public List<BonPoint> findNegativeBonPointsAvailable() {
+	/**
+	 * 
+	 * @return
+	 */
+	public long countEntityConsumed() {
+		BasicQuery query = new BasicQuery("{pointConsumed: 0}");
+		return mongoTemplate.count(query, BonPoint.class);
+	}
+
+	public List<BonPoint> findMauvaisPointsAvailable() {
 		try {
 			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$lt: 0}},{pointConsumed:{$gt: -1000}}]}");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
@@ -83,7 +124,9 @@ public class BonPointDaoImpl {
 			BasicQuery query = new BasicQuery("{pointConsumed: -1000}");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			if (bonPoints.size() > 0) {
-				mongoTemplate.remove(bonPoints.get(0));
+				BonPoint bonPoint = bonPoints.get(0);
+				bonPoint.setPointConsumed(0);
+				mongoTemplate.save(bonPoint);
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
@@ -92,7 +135,7 @@ public class BonPointDaoImpl {
 
 	public Integer sumBonPoint() {
 		Integer sum = 0;
-		List<BonPoint> bonPoints = findBonPointsAvailable();
+		List<BonPoint> bonPoints = findPointsAvailable();
 		for (BonPoint bonPoint : bonPoints) {
 			sum += bonPoint.getPointConsumed();
 		}
@@ -130,7 +173,7 @@ public class BonPointDaoImpl {
 	public void removePunition(Integer pointToRemove) {
 		Integer takenOutPoint = pointToRemove;
 		if (pointToRemove > 0) {
-			List<BonPoint> bonPointsPositifs = findPostiveBonPointsAvailable();
+			List<BonPoint> bonPointsPositifs = findBonPointsAvailable();
 			for (BonPoint bonPoint : bonPointsPositifs) {
 				if (takenOutPoint > 0) {
 					Integer reste = bonPoint.getPointConsumed();
@@ -147,7 +190,7 @@ public class BonPointDaoImpl {
 			}
 		} else {
 
-			List<BonPoint> bonPointsnegatives = findNegativeBonPointsAvailable();
+			List<BonPoint> bonPointsnegatives = findMauvaisPointsAvailable();
 			for (BonPoint bonPoint : bonPointsnegatives) {
 				if (takenOutPoint < 0) {
 					Integer reste = bonPoint.getPointConsumed();

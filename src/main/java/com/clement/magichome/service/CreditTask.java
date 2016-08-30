@@ -33,6 +33,7 @@ public class CreditTask implements Runnable {
 	public void run() {
 		LOG.debug("Credit " + minutes);
 		fileService.writeCountDown(minutes);
+		bonPointDaoImpl.compensateBonEtMauvaisPoint();
 		bonPointDaoImpl.removePunition(minutes);
 		dayScheduler.setFutureCredit(null);
 		dayScheduler.setCreditTask(null);

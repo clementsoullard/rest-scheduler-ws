@@ -67,15 +67,8 @@ public class DayScheduler {
 
 		Calendar calendar = Calendar.getInstance();
 
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-
 		/* **/
 		int minutesAllowed = -1;
-
-		//
-
-		minutesAllowed = checkTimeToGive(calendar);
-		LOG.debug("Checking for date " + df.format(calendar.getTime()) + " minutes allowed = " + minutesAllowed);
 
 		/**
 		 * dans le cas ou nous sommes privé de tele alors le calendrier commence
@@ -90,6 +83,8 @@ public class DayScheduler {
 			futureCredit = null;
 		}
 
+		minutesAllowed = checkTimeToGive(calendar);
+
 		/**
 		 * This is to avoid that the calendar loop eternally, if no day ever
 		 * give some minutes to watch the TV.
@@ -99,7 +94,7 @@ public class DayScheduler {
 		while (minutesAllowed < 0 && numberOfDayIntheFuture < 20) {
 			calendar.add(Calendar.DATE, 1);
 			minutesAllowed = checkTimeToGive(calendar);
-			LOG.debug("Checking for date " + df.format(calendar.getTime()) + " minutes allowed = " + minutesAllowed);
+
 			numberOfDayIntheFuture++;
 		}
 
@@ -109,8 +104,8 @@ public class DayScheduler {
 		Date futureDate = calendar.getTime();
 
 		Integer minuteModifierForBonPoint = bonPointDaoImpl.pointToDistribute(-minutesAllowed, minutesAllowed / 2);
-		LOG.debug("There would be a modifier of "+minuteModifierForBonPoint +" on " + futureDate);
-		
+		LOG.debug("There would be a modifier of " + minuteModifierForBonPoint + " on " + futureDate);
+
 		int minutesGranted = minutesAllowed + minuteModifierForBonPoint;
 		/** Create the future task */
 		if (futureCredit == null) {
@@ -123,7 +118,7 @@ public class DayScheduler {
 		}
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-			LOG.debug("Schedule " + minutesGranted + "minutes  on " + futureDate);
+			LOG.debug("Schedule " + minutesGranted + " mn  on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
@@ -151,6 +146,7 @@ public class DayScheduler {
 	 *         be granted is passed, then -1 is returned.
 	 */
 	private int checkTimeToGive(Calendar calendarDateToGrantMinutes) {
+
 		int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
 		int minutesAllowed = 0;
 
@@ -190,74 +186,19 @@ public class DayScheduler {
 		if (new Date().after(calendarDateToGrantMinutes.getTime())) {
 			LOG.debug("The current date is after " + calendarDateToGrantMinutes.getTime()
 					+ ", we must check the next day.");
-			return -1;
+			minutesAllowed = -1;
 		}
 
-		if (bonPointDaoImpl.isPriveDeTele() && minutesAllowed > 0) {
+		else if (bonPointDaoImpl.isPriveDeTele() && minutesAllowed > 0) {
 			LOG.debug("The guy is deprived , we must check the next day.");
 			bonPointDaoImpl.remove1DayPriveDeTele();
+			minutesAllowed = -1;
 		}
-		LOG.debug("For day " + calendarDateToGrantMinutes.getTime() + ", " + minutesAllowed + " are granted.");
+		LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
+				+ minutesAllowed);
 		return minutesAllowed;
 	}
 
-	// /**
-	// * Every day the TV stops at midnight.
-	// */
-	// @Scheduled(cron = "0 1 1 * * MON-FRI")
-	// public void closeTv() throws IOException {
-	// fileService.writeCountDown(-1);
-	// }
-	//
-	// /**
-	// * Every day the TV stops at midnight.
-	// */
-	// @Scheduled(cron = "1 0 11 * * MON-TUE", zone = "Europe/Paris")
-	// public void creditTvVacances() throws IOException {
-	// Integer minutes = bonPointDaoImpl.pointToDistribute(-60, 30);
-	// fileService.writeCountDown(60 * (60 + minutes));
-	// bonPointDaoImpl.removePunition(minutes);
-	// }
-	//
-	// /**
-	// * Every day the TV stops at midnight.
-	// */
-	// @Scheduled(cron = "1 0 11 * * THU-FRI", zone = "Europe/Paris")
-	// public void creditTvVacances2() throws IOException {
-	// Integer minutes = bonPointDaoImpl.pointToDistribute(-60, 30);
-	// fileService.writeCountDown(60 * (60 + minutes));
-	// bonPointDaoImpl.removePunition(minutes);
-	// }
-	//
-	// /**
-	// * Credited on Wednesday.
-	// */
-	// @Scheduled(cron = "0 1 14 * * WED", zone = "Europe/Paris")
-	// public void giveCreditForWednesday() throws IOException {
-	// Integer minutes = bonPointDaoImpl.pointToDistribute(-60, 30);
-	// fileService.writeCountDown(60 * (60 + minutes));
-	// bonPointDaoImpl.removePunition(minutes);
-	// }
-	//
-	// /**
-	// * Credited on Saturday.
-	// */
-	// @Scheduled(cron = "0 1 11 * * SAT", zone = "Europe/Paris")
-	// public void giveCreditForWeekEnd() throws IOException {
-	// Integer minutes = bonPointDaoImpl.pointToDistribute(-60, 30);
-	// fileService.writeCountDown(60 * (60 + minutes));
-	// bonPointDaoImpl.removePunition(minutes);
-	// }
-	//
-	// /**
-	// * Credited on Saturday.
-	// */
-	// @Scheduled(cron = "0 1 11 * * SUN", zone = "Europe/Paris")
-	// public void giveCreditForWeekEndSunday() throws IOException {
-	// Integer minutes = bonPointDaoImpl.pointToDistribute(-60, 30);
-	// fileService.writeCountDown(60 * (60 + minutes));
-	// bonPointDaoImpl.removePunition(minutes);
-	// }
 	public FutureCredit getFutureCredit() {
 		return futureCredit;
 	}

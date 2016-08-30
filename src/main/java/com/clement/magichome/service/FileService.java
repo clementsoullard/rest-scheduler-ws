@@ -76,7 +76,7 @@ public class FileService {
 	 */
 	public boolean getTvStatusRelay() {
 		if(!propertyManager.getProductionMode()){
-			LOG.debug("In debug mode return ing true by default");
+			LOG.debug("In debug mode relay is assumed on");
 			return true;
 		}
 		File file = new File(propertyManager.getPathStatus());
