@@ -94,7 +94,6 @@ public class DayScheduler {
 		while (minutesAllowed < 0 && numberOfDayIntheFuture < 20) {
 			calendar.add(Calendar.DATE, 1);
 			minutesAllowed = checkTimeToGive(calendar);
-
 			numberOfDayIntheFuture++;
 		}
 
@@ -118,10 +117,20 @@ public class DayScheduler {
 		}
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
+
 			LOG.debug("Schedule " + minutesGranted + " mn  on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
+			/** The switch off date is the day after */
+			Calendar switchOffDate = Calendar.getInstance();
+			switchOffDate.add(Calendar.DATE, 1);
+			switchOffDate.set(Calendar.HOUR_OF_DAY, 1);
+			switchOffDate.set(Calendar.MINUTE, 0);
+
+			CreditTask creditTaskSwitchOff = new CreditTask(fileService, bonPointDaoImpl, this);
+			creditTaskSwitchOff.setMinutes(-1);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
+			taskScheduler.schedule(creditTaskSwitchOff, switchOffDate.getTime());
 		} else {
 			creditTask.setMinutes(minutesGranted);
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
