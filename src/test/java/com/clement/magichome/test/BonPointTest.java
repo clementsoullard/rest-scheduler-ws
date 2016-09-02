@@ -15,11 +15,8 @@ import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.BonPointRepository;
 
-import junit.framework.Assert;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@TestPropertySource(locations="classpath:test.properties")
 public class BonPointTest {
 
 	@Resource
