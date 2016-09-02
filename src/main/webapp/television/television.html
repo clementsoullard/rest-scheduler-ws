@@ -87,11 +87,15 @@
 
 			<div>
 				<h4>Prochain crédit</h4>
-				<div ng-if="tvstatus.futureCredit" class="row">
+				<div ng-if="tvstatus.dateStr" class="row">
 
-					<span class="col-sm-4  btn-tv">
-						{{tvstatus.futureCredit.amountOfCreditInMinutes}} minutes le
-						{{tvstatus.futureCredit.dateStr}} </span>
+					<span class="col-sm-12  btn-tv">
+						{{tvstatus.amountOfCreditInMinutes}} minutes le
+						{{tvstatus.dateStr}} </span>
+				</div>
+				<div ng-if="!tvstatus.dateStr" class="row">
+
+					<span class="col-sm-12  btn-tv">A calculer</span>
 				</div>
 
 

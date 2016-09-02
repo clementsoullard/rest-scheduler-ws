@@ -104,9 +104,10 @@ public class TvCheckScheduler {
 			tvWrapper = new TVWrapper();
 		}
 		tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
-		if (dayScheduler.getFutureCredit() != null) {
-			tvWrapper.getResult().setFutureCredit(dayScheduler.getFutureCredit());
-		}
+		if (dayScheduler.getCreditTask() != null) {
+			tvWrapper.getResult().setDateOfCredit(dayScheduler.getCreditTask().getExecutionDate());
+			tvWrapper.getResult().setAmountOfCreditInMinutes(dayScheduler.getCreditTask().getMinutes());
+			}
 	}
 
 	/** *Cache map for channel name */

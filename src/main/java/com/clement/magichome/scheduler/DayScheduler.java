@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.Resource;
@@ -17,7 +18,6 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.clement.magichome.object.FutureCredit;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.CreditTask;
 import com.clement.magichome.service.FileService;
@@ -37,7 +37,7 @@ public class DayScheduler {
 
 	public final static int TIME_IS_PASSED = -1;
 
-	DateFormat df = new SimpleDateFormat("EEEEE d MMM");
+	DateFormat df = new SimpleDateFormat("EEEEE d MMM",Locale.FRENCH);
 
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -52,7 +52,7 @@ public class DayScheduler {
 	 * The future credit information that will be displayed, it probably make
 	 * sense to merge it into a single class.
 	 */
-	private FutureCredit futureCredit;
+//	private FutureCredit futureCredit;
 
 	/** Credit task */
 	private CreditTask creditTask;
@@ -60,8 +60,9 @@ public class DayScheduler {
 	private ScheduledFuture<CreditTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void scheduleForTheDay() throws IOException {
+		
 
 		LOG.debug("Checking if task is here at  " + new Date());
 
@@ -74,14 +75,13 @@ public class DayScheduler {
 		 * dans le cas ou nous sommes privé de tele alors le calendrier commence
 		 * à la dernière fois (si quelque chose était déjà programmé
 		 */
-		if (bonPointDaoImpl.isPriveDeTele() && futureCredit != null) {
-			calendar.setTime(futureCredit.getDateOfCredit());
+		if (bonPointDaoImpl.isPriveDeTele() && creditTask != null) {
+			calendar.setTime(creditTask.getExecutionDate());
 			LOG.debug("Une punition s'est produite dans l'entre deux. On recommence depuis "
 					+ df.format(calendar.getTime()));
 			scheduledFuture.cancel(false);
 			creditTask = null;
-			futureCredit = null;
-		}
+			}
 
 		minutesAllowed = checkTimeToGive(calendar);
 
@@ -106,36 +106,25 @@ public class DayScheduler {
 		LOG.debug("There would be a modifier of " + minuteModifierForBonPoint + " on " + futureDate);
 
 		int minutesGranted = minutesAllowed + minuteModifierForBonPoint;
-		/** Create the future task */
-		if (futureCredit == null) {
-			futureCredit = new FutureCredit();
-			futureCredit.setAmountOfCreditInMinutes(minutesGranted);
-			futureCredit.setDateOfCredit(futureDate);
-		} else {
-			futureCredit.setAmountOfCreditInMinutes(minutesGranted);
-			LOG.debug("Already future schedule, no need to schedule another one just updating the minutes");
-		}
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-
 			LOG.debug("Schedule " + minutesGranted + " mn  on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
-			/** The switch off date is the day after */
-			Calendar switchOffDate = Calendar.getInstance();
-			switchOffDate.add(Calendar.DATE, 1);
-			switchOffDate.set(Calendar.HOUR_OF_DAY, 1);
-			switchOffDate.set(Calendar.MINUTE, 0);
-
-			CreditTask creditTaskSwitchOff = new CreditTask(fileService, bonPointDaoImpl, this);
-			creditTaskSwitchOff.setMinutes(-1);
+			creditTask.setExecutionDate(futureDate);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
-			taskScheduler.schedule(creditTaskSwitchOff, switchOffDate.getTime());
-		} else {
+			} else {
 			creditTask.setMinutes(minutesGranted);
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
 
+	}
+	
+
+	/** Every night at 2 o'clock the switch goes to Off, no matter what happened before */
+	@Scheduled(cron = "0 0 2 * * *")
+	public void switchOffInNight() throws IOException {
+		fileService.writeCountDown(-1);
 	}
 
 	public CreditTask getCreditTask() {
@@ -158,6 +147,17 @@ public class DayScheduler {
 
 		int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
 		int minutesAllowed = 0;
+
+		/** FIXME, test only */
+		if(false){
+			calendarDateToGrantMinutes.add(Calendar.MINUTE, 2);
+			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
+			LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
+					+ minutesAllowed);
+
+			//minutesAllowed=10;
+			return 1;
+		}
 
 		//
 		if (dayOfWeek == Calendar.WEDNESDAY) {
@@ -203,17 +203,12 @@ public class DayScheduler {
 			bonPointDaoImpl.remove1DayPriveDeTele();
 			minutesAllowed = -1;
 		}
+
 		LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
 				+ minutesAllowed);
 		return minutesAllowed;
 	}
 
-	public FutureCredit getFutureCredit() {
-		return futureCredit;
-	}
 
-	public void setFutureCredit(FutureCredit futureCredit) {
-		this.futureCredit = futureCredit;
-	}
 
 }
