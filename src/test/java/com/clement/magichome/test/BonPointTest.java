@@ -17,7 +17,6 @@ import com.clement.magichome.service.BonPointRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@TestPropertySource(locations="classpath:test.properties")
 public class BonPointTest {
 
 	@Resource
