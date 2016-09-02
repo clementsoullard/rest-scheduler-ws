@@ -60,7 +60,7 @@ public class DayScheduler {
 	private ScheduledFuture<CreditTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void scheduleForTheDay() throws IOException {
 
 		LOG.debug("Checking if task is here at  " + new Date());
