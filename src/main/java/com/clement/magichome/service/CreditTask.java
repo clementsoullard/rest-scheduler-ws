@@ -1,12 +1,15 @@
 package com.clement.magichome.service;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.clement.magichome.scheduler.DayScheduler;
 
 /**
- * This will credit 
+ * This will credit
+ * 
  * @author Clement_Soullard
  *
  */
@@ -18,6 +21,8 @@ public class CreditTask implements Runnable {
 
 	private Integer minutes;
 
+	private Date executionDate;
+
 	private FileService fileService;
 
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -27,6 +32,7 @@ public class CreditTask implements Runnable {
 	public CreditTask(FileService fileService, BonPointDaoImpl bonPointDaoImpl, DayScheduler dayScheduler) {
 		this.fileService = fileService;
 		this.bonPointDaoImpl = bonPointDaoImpl;
+		this.dayScheduler = dayScheduler;
 	}
 
 	@Override
@@ -35,12 +41,23 @@ public class CreditTask implements Runnable {
 		fileService.writeCountDown(minutes);
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
 		bonPointDaoImpl.removePunition(minutes);
-		dayScheduler.setFutureCredit(null);
 		dayScheduler.setCreditTask(null);
 	}
 
 	public void setMinutes(Integer minutes) {
 		this.minutes = minutes;
+	}
+
+	public Integer getMinutes() {
+		return minutes;
+	}
+
+	public Date getExecutionDate() {
+		return executionDate;
+	}
+
+	public void setExecutionDate(Date executionDate) {
+		this.executionDate = executionDate;
 	}
 
 }

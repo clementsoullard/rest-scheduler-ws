@@ -1,7 +1,16 @@
 package com.clement.magichome.object;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.clement.magichome.scheduler.DayScheduler;
 
 /**
  * This is return by the web service to give the TV status.
@@ -11,6 +20,13 @@ import java.text.NumberFormat;
  */
 public class TVStatus {
 
+	public final static DateFormat df = new SimpleDateFormat("EEEEE dd, HH:mm", Locale.FRANCE);
+	/** The date of the future credit. */
+	private Date dateOfCredit;
+
+	/** The amount of future credited minutes */
+	private Integer amountOfCreditInMinutes;
+
 	private final static NumberFormat nf = new DecimalFormat("00");
 
 	/** Gives the status of the relay */
@@ -18,9 +34,6 @@ public class TVStatus {
 
 	/** Number of seconds remaining */
 	private Integer remainingSecond;
-
-	/** Number of seconds remaining */
-	private FutureCredit futureCredit;
 
 	/** The data from the TV */
 	private TVData data;
@@ -64,13 +77,31 @@ public class TVStatus {
 		this.relayStatus = relayStatus;
 	}
 
-	public FutureCredit getFutureCredit() {
-		return futureCredit;
+	public Date getDateOfCredit() {
+		return dateOfCredit;
 	}
 
-	public void setFutureCredit(FutureCredit futureCredit) {
-		this.futureCredit = futureCredit;
+	static final Logger LOG = LoggerFactory.getLogger(DayScheduler.class);
+
+	public void setDateOfCredit(Date dateOfCredit) {
+		LOG.debug("Appel de setDateOfCredit" + dateOfCredit);
+		this.dateOfCredit = dateOfCredit;
 	}
-	
+
+	public Integer getAmountOfCreditInMinutes() {
+		return amountOfCreditInMinutes;
+	}
+
+	public void setAmountOfCreditInMinutes(Integer amountOfCreditInMinutes) {
+		this.amountOfCreditInMinutes = amountOfCreditInMinutes;
+	}
+
+	public String getDateStr() {
+		if (dateOfCredit != null) {
+			return df.format(dateOfCredit);
+		} else {
+			return null;
+		}
+	}
 
 }
