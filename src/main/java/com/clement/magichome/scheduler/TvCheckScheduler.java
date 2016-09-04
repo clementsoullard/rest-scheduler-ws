@@ -103,7 +103,9 @@ public class TvCheckScheduler {
 		} else {
 			tvWrapper = new TVWrapper();
 		}
+		if(tvWrapper.getResult()!=null){
 		tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
+		}
 		if (dayScheduler.getCreditTask() != null) {
 			tvWrapper.getResult().setDateOfCredit(dayScheduler.getCreditTask().getExecutionDate());
 			tvWrapper.getResult().setAmountOfCreditInMinutes(dayScheduler.getCreditTask().getMinutes());

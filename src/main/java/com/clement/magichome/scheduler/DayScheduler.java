@@ -37,7 +37,8 @@ public class DayScheduler {
 
 	public final static int TIME_IS_PASSED = -1;
 
-	DateFormat df = new SimpleDateFormat("EEEEE d MMM",Locale.FRENCH);
+	DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
+	DateFormat dfLcd = new SimpleDateFormat("EEE d hh:mm", Locale.FRENCH);
 
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -52,7 +53,7 @@ public class DayScheduler {
 	 * The future credit information that will be displayed, it probably make
 	 * sense to merge it into a single class.
 	 */
-//	private FutureCredit futureCredit;
+	// private FutureCredit futureCredit;
 
 	/** Credit task */
 	private CreditTask creditTask;
@@ -60,9 +61,8 @@ public class DayScheduler {
 	private ScheduledFuture<CreditTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 * * * * *")
 	public void scheduleForTheDay() throws IOException {
-		
 
 		LOG.debug("Checking if task is here at  " + new Date());
 
@@ -81,7 +81,7 @@ public class DayScheduler {
 					+ df.format(calendar.getTime()));
 			scheduledFuture.cancel(false);
 			creditTask = null;
-			}
+		}
 
 		minutesAllowed = checkTimeToGive(calendar);
 
@@ -113,15 +113,19 @@ public class DayScheduler {
 			creditTask.setMinutes(minutesGranted);
 			creditTask.setExecutionDate(futureDate);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
-			} else {
+			fileService.writeSecondLine("" + minutesGranted + "mn " + dfLcd.format(futureDate));
+		} else {
 			creditTask.setMinutes(minutesGranted);
+			fileService.writeSecondLine("" + minutesGranted + "mn " + dfLcd.format(creditTask.getExecutionDate()));
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
 
 	}
-	
 
-	/** Every night at 2 o'clock the switch goes to Off, no matter what happened before */
+	/**
+	 * Every night at 2 o'clock the switch goes to Off, no matter what happened
+	 * before
+	 */
 	@Scheduled(cron = "0 0 2 * * *")
 	public void switchOffInNight() throws IOException {
 		fileService.writeCountDown(-1);
@@ -149,13 +153,13 @@ public class DayScheduler {
 		int minutesAllowed = 0;
 
 		/** FIXME, test only */
-		if(false){
+		if (false) {
 			calendarDateToGrantMinutes.add(Calendar.MINUTE, 2);
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
 					+ minutesAllowed);
 
-			//minutesAllowed=10;
+			// minutesAllowed=10;
 			return 1;
 		}
 
@@ -208,7 +212,5 @@ public class DayScheduler {
 				+ minutesAllowed);
 		return minutesAllowed;
 	}
-
-
 
 }

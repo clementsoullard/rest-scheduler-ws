@@ -47,6 +47,28 @@ public class FileService {
 	}
 
 	/**
+	 * 
+	 * @param value
+	 * @return true
+	 */
+	public boolean writeSecondLine(String value) {
+		File file = new File(propertyManager.getPathSecondLine());
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdir();
+		}
+		PrintStream ps;
+		try {
+			ps = new PrintStream(file);
+			ps.print(value);
+			ps.close();
+			return true;
+		} catch (FileNotFoundException e) {
+			LOG.error(e.getMessage(),e);
+		}
+		return false;
+	}
+
+	/**
 	 * Create a file if the Livebox is in Standby mode.
 	 * 
 	 * @param value
