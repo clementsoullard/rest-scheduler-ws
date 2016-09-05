@@ -9,8 +9,8 @@
   </appender>
   
   <logger name="com.clement" level="DEBUG"/>
-  <logger name="org.springframework.data.mongodb.core" level="DEBUG"/>
-
+<!--   <logger name="org.springframework.data.mongodb.core" level="DEBUG"/>
+ -->
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
