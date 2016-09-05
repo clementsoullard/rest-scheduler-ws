@@ -109,10 +109,20 @@ public class TvCheckScheduler {
 		}
 
 		/***
-		 * Update the number of second remaining
+		 * Update the number of bon point
+		 * TODO is it necessary to perform this avery 15 sec. 
+		 * 
 		 */
 		if (tvWrapper.getResult() != null) {
-			tvWrapper.getResult().setBonPoints(bonPointDaoImpl.sumBonPoint());
+			tvWrapper.getResult().setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
+		}
+
+		/***
+		 * Update the number of bons points from the beginning of the week.
+		 * TODO is it necessary to perform this avery 15 sec. 
+		 */
+		if (tvWrapper.getResult() != null) {
+			tvWrapper.getResult().setBonPointsWeek(bonPointDaoImpl.sumBonPointBeginningOfWeek().getTotal().intValue());
 		}
 
 		/***
@@ -120,12 +130,6 @@ public class TvCheckScheduler {
 		 */
 		if (tvWrapper.getResult() != null) {
 			tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
-		}
-		/***
-		 * Update the number of second remaining
-		 */
-		if (tvWrapper.getResult() != null) {
-			tvWrapper.getResult().setBonPoints(bonPointDaoImpl.sumBonPoint());
 		}
 		/**
 		 * Update when the next credit will happen

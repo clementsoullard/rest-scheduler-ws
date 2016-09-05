@@ -2,8 +2,9 @@ package com.clement.magichome.service;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,11 +14,18 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.BonPointSum;
 
+/**
+ * This class help to track the bon points.
+ * 
+ * @author Clement_Soullard
+ *
+ */
 @Repository
 public class BonPointDaoImpl {
 
@@ -109,9 +117,14 @@ public class BonPointDaoImpl {
 		return null;
 	}
 
-	public BonPointSum sumBonPointInOneLine() {
+	/**
+	 * This compute the sume of the good and bad point starting for the
+	 * beginning of the data collection.
+	 * 
+	 * @return
+	 */
+	public BonPointSum sumBonPointV2() {
 		try {
-
 			Aggregation agg = Aggregation.newAggregation(
 					match(org.springframework.data.mongodb.core.query.Criteria.where("point").ne(-1000)),
 					group().sum("pointConsumed").as("total"));
@@ -126,7 +139,39 @@ public class BonPointDaoImpl {
 			LOG.error(e.getMessage(), e);
 		}
 		return null;
+	}
 
+	/**
+	 * This compute the sume of the good and bad point starting for the
+	 * beginning of the data collection.
+	 * 
+	 * @return
+	 */
+	public BonPointSum sumBonPointBeginningOfWeek() {
+		try {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_WEEK, 2);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			Date dateFirstDayOfWeek = cal.getTime();
+			LOG.debug("First Day of week is " + dateFirstDayOfWeek);
+			Aggregation agg = Aggregation
+					.newAggregation(
+							match(new Criteria().andOperator(Criteria.where("point").ne(-1000),
+									Criteria.where("date").gt(dateFirstDayOfWeek))),
+							group().sum("pointConsumed").as("total"));
+			/*
+			 * Here is the raw query used in mongo db shell [{$match: {point:
+			 * {$ne: -1000}}},{$group:{ _id: { },totalAmount: { $sum:
+			 * '$pointConsumed' },count: { $sum: 1 }}}]
+			 */
+			AggregationResults<BonPointSum> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", BonPointSum.class);
+			return bonPointSum.getUniqueMappedResult();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
 	}
 
 	/**
@@ -168,14 +213,14 @@ public class BonPointDaoImpl {
 	 * 
 	 * @return the sum of bon points available (Not counting the privé de télé.)
 	 */
-	public Integer sumBonPoint() {
-		Integer sum = 0;
-		List<BonPoint> bonPoints = findPointsAvailable();
-		for (BonPoint bonPoint : bonPoints) {
-			sum += bonPoint.getPointConsumed();
-		}
-		return sum;
-	}
+	// public Integer sumBonPoint() {
+	// Integer sum = 0;
+	// List<BonPoint> bonPoints = findPointsAvailable();
+	// for (BonPoint bonPoint : bonPoints) {
+	// sum += bonPoint.getPointConsumed();
+	// }
+	// return sum;
+	// }
 
 	/**
 	 * This is called by the scheduler to compute the number of point to
@@ -189,7 +234,7 @@ public class BonPointDaoImpl {
 	 * @return
 	 */
 	public Integer pointToDistribute(Integer min, Integer max) {
-		Integer sum = sumBonPoint();
+		Integer sum = sumBonPointV2().getTotal().intValue();
 		Integer pointToDistribute = Math.round(sum.floatValue() / DISTRIBUTION_FACTOR + (1 * Math.signum(sum)));
 		if (pointToDistribute < min) {
 			pointToDistribute = min;

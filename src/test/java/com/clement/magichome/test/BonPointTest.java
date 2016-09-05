@@ -1,5 +1,6 @@
 package com.clement.magichome.test;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,12 +37,17 @@ public class BonPointTest {
 	}
 
 	public void insertBonPointBilanNegatif() {
+		Calendar cal = Calendar.getInstance();
+		Date today = cal.getTime();
+		cal.add(Calendar.MONTH, -1);
+		Date oneMonthAgo = cal.getTime();
 		bonPointRepository.deleteAll();
-		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
-		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
-		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
-		bonPointRepository.save(new BonPoint(-1000, 0, new Date(), "desobeissance"));
-		bonPointRepository.save(new BonPoint(-1000, -1000, new Date(), "desobeissance"));
+		bonPointRepository.save(new BonPoint(20, 20, today, "recompense"));
+		bonPointRepository.save(new BonPoint(-20, -20, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-20, -20, oneMonthAgo, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-20, -10, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, 0, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, -1000, today, "desobeissance"));
 	}
 
 	public void insertBonPointBilanPositif() {
@@ -62,7 +68,7 @@ public class BonPointTest {
 	@Test
 	public void testSumBonPoint() {
 		insertBonPointBilanNegatif();
-		Integer sumBonPoint = bonPointDaoImpl.sumBonPoint();
+		Integer sumBonPoint = bonPointDaoImpl.sumBonPointV2().getTotal().intValue();
 		org.junit.Assert.assertEquals(-10, sumBonPoint.intValue());
 	}
 
@@ -102,10 +108,12 @@ public class BonPointTest {
 	}
 
 	@Test
-	public void testSumePointBilanNegatif() {
+	public void testSumPointBilanNegatif() {
 		insertBonPointBilanNegatif();
-		BonPointSum bonPointSum = bonPointDaoImpl.sumBonPointInOneLine();
-		org.junit.Assert.assertEquals(-10L, bonPointSum.getTotal().longValue());
+		BonPointSum bonPointSum = bonPointDaoImpl.sumBonPointV2();
+		org.junit.Assert.assertEquals(-30L, bonPointSum.getTotal().longValue());
+		BonPointSum bonPointSumBeginningOfWeek = bonPointDaoImpl.sumBonPointBeginningOfWeek();
+		org.junit.Assert.assertEquals(-10L, bonPointSumBeginningOfWeek.getTotal().longValue());
 	}
 
 }
