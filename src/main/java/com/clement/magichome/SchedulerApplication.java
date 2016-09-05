@@ -13,7 +13,6 @@ import org.springframework.context.annotation.PropertySource;
  */
 
 @SpringBootApplication
-@PropertySource("classpath:ext-application.properties")
 public class SchedulerApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
