@@ -11,7 +11,7 @@
   <logger name="com.clement" level="DEBUG"/>
   <logger name="org.springframework.data.mongodb.core" level="DEBUG"/>
 
-  <root level="OFF">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
