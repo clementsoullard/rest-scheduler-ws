@@ -1,15 +1,22 @@
 package com.clement.magichome.service;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.object.BonPoint;
+import com.clement.magichome.object.BonPointSum;
 
 @Repository
 public class BonPointDaoImpl {
@@ -87,6 +94,10 @@ public class BonPointDaoImpl {
 		return mongoTemplate.count(query, BonPoint.class);
 	}
 
+	/**
+	 * 
+	 * @return the list of mauvais point available
+	 */
 	public List<BonPoint> findMauvaisPointsAvailable() {
 		try {
 			BasicQuery query = new BasicQuery("{$and: [ {pointConsumed: {$lt: 0}},{pointConsumed:{$gt: -1000}}]}");
@@ -96,6 +107,26 @@ public class BonPointDaoImpl {
 			LOG.error(e.getMessage(), e);
 		}
 		return null;
+	}
+
+	public BonPointSum sumBonPointInOneLine() {
+		try {
+
+			Aggregation agg = Aggregation.newAggregation(
+					match(org.springframework.data.mongodb.core.query.Criteria.where("point").ne(-1000)),
+					group().sum("pointConsumed").as("total"));
+			/*
+			 * Here is the raw query used in mongo db shell [{$match: {point:
+			 * {$ne: -1000}}},{$group:{ _id: { },totalAmount: { $sum:
+			 * '$pointConsumed' },count: { $sum: 1 }}}]
+			 */
+			AggregationResults<BonPointSum> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", BonPointSum.class);
+			return bonPointSum.getUniqueMappedResult();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+
 	}
 
 	/**
@@ -133,6 +164,10 @@ public class BonPointDaoImpl {
 		}
 	}
 
+	/**
+	 * 
+	 * @return the sum of bon points available (Not counting the privé de télé.)
+	 */
 	public Integer sumBonPoint() {
 		Integer sum = 0;
 		List<BonPoint> bonPoints = findPointsAvailable();

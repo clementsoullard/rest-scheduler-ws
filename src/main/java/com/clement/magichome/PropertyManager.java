@@ -18,6 +18,10 @@ public class PropertyManager {
 		return workPath + "/CD";
 	}
 
+	public String getPathSecondLine() {
+		return workPath + "/SL";
+	}
+
 	public String getPathStandby() {
 		return workPath + "/SB";
 	}

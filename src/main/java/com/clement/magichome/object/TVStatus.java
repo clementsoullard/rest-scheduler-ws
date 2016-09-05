@@ -27,6 +27,12 @@ public class TVStatus {
 	/** The amount of future credited minutes */
 	private Integer amountOfCreditInMinutes;
 
+	/** The number of bon points */
+	private Integer bonPoints;
+
+	/** The number of bon points */
+	private Integer bonPointsWeek;
+
 	private final static NumberFormat nf = new DecimalFormat("00");
 
 	/** Gives the status of the relay */
@@ -102,6 +108,22 @@ public class TVStatus {
 		} else {
 			return null;
 		}
+	}
+
+	public Integer getBonPoints() {
+		return bonPoints;
+	}
+
+	public void setBonPoints(Integer bonPoints) {
+		this.bonPoints = bonPoints;
+	}
+
+	public Integer getBonPointsWeek() {
+		return bonPointsWeek;
+	}
+
+	public void setBonPointsWeek(Integer bonPointsWeek) {
+		this.bonPointsWeek = bonPointsWeek;
 	}
 
 }

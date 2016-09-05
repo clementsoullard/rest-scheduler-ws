@@ -12,12 +12,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.clement.magichome.object.BonPoint;
+import com.clement.magichome.object.BonPointSum;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.BonPointRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@TestPropertySource(locations="classpath:test.properties")
 public class BonPointTest {
 
 	@Resource
@@ -40,6 +40,8 @@ public class BonPointTest {
 		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
 		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
 		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, 0, new Date(), "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, -1000, new Date(), "desobeissance"));
 	}
 
 	public void insertBonPointBilanPositif() {
@@ -48,6 +50,7 @@ public class BonPointTest {
 		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
 		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
 	}
+
 	public void insertBonPointBilanNull() {
 		bonPointRepository.deleteAll();
 		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
@@ -81,20 +84,28 @@ public class BonPointTest {
 	public void testCompensatePointRecompenseBilanPositif() {
 		insertBonPointBilanPositif();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(2L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(2L, bonPointDaoImpl.countEntityConsumed());
 	}
 
 	@Test
 	public void testCompensatePointRecompenseBilanNegatif() {
 		insertBonPointBilanNegatif();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(2L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(2L, bonPointDaoImpl.countEntityConsumed());
 	}
+
 	@Test
 	public void testCompensatePointRecompenseBilanNul() {
 		insertBonPointBilanNull();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(4L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(4L, bonPointDaoImpl.countEntityConsumed());
+	}
+
+	@Test
+	public void testSumePointBilanNegatif() {
+		insertBonPointBilanNegatif();
+		BonPointSum bonPointSum = bonPointDaoImpl.sumBonPointInOneLine();
+		org.junit.Assert.assertEquals(-10L, bonPointSum.getTotal().longValue());
 	}
 
 }
