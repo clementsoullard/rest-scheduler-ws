@@ -118,7 +118,7 @@ public class BonPointDaoImpl {
 	}
 
 	/**
-	 * This compute the sume of the good and bad point starting for the
+	 * This compute the sum of the good and bad point starting for the
 	 * beginning of the data collection.
 	 * 
 	 * @return
@@ -167,7 +167,14 @@ public class BonPointDaoImpl {
 			 * '$pointConsumed' },count: { $sum: 1 }}}]
 			 */
 			AggregationResults<BonPointSum> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", BonPointSum.class);
-			return bonPointSum.getUniqueMappedResult();
+			BonPointSum bps=bonPointSum.getUniqueMappedResult();
+			if(bps!=null){
+			return bps;}
+			else{
+				bps=new BonPointSum();
+				bps.setTotal(0L);
+				return bps;
+			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
