@@ -17,6 +17,7 @@ import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
+import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.scheduler.TvCheckScheduler;
 import com.clement.magichome.service.BonPointRepository;
 import com.clement.magichome.service.FileService;
@@ -28,6 +29,9 @@ public class TVSchedulerController {
 
 	@Resource
 	TvCheckScheduler tvCheckScheduler;
+
+	@Resource
+	DayScheduler dayScheduler;
 
 	@Resource
 	FileService fileService;
@@ -63,18 +67,22 @@ public class TVSchedulerController {
 	}
 
 	@RequestMapping("/chart-channel")
-	public Wrapper chartChannelCahrt() throws Exception {
+	public Wrapper chartChannelChart() throws Exception {
 		Wrapper jsChart = logRepositoryImpl.getMinutesPerChannel();
 		return jsChart;
 	}
 
 	@RequestMapping("/punition")
 	public PunitionResult punition(@RequestBody Punition punition) throws Exception {
-		// logService.insertlogEntry(new Date(), new Date(), 1, 2.2F);
 		bonPointRepository
 				.save(new BonPoint(punition.getValue(), punition.getValue(), new Date(), punition.getRationale()));
 		PunitionResult punitionResult = new PunitionResult();
+		if(punition.getValue()<0){
 		punitionResult.setMessage("La punition a été appliquée");
+		}else{
+			punitionResult.setMessage("Les bons point ont bien été attribué");
+		}
+		dayScheduler.scheduleForTheDay();
 		return punitionResult;
 	}
 }

@@ -158,8 +158,6 @@ public class DayScheduler {
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
 					+ minutesAllowed);
-
-			// minutesAllowed=10;
 			return 1;
 		}
 

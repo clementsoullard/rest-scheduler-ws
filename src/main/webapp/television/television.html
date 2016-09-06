@@ -93,11 +93,21 @@
 						{{tvstatus.amountOfCreditInMinutes}} minutes le
 						{{tvstatus.dateStr}} </span>
 				</div>
-				<div ng-if="!tvstatus.dateStr" class="row">
+			<h4>Bons Points</h4>
+				<div ng-if="tvstatus" class="row">
+			<span class="col-sm-12  btn-tv">
+						Total: {{tvstatus.bonPoints}}
+			</span>
+			</div>
 
-					<span class="col-sm-12  btn-tv">A calculer</span>
-				</div>
-
+			<div ng-if="tvstatus" class="row">
+			<span class="col-sm-12  btn-tv">
+						Depuis le debut de la semaine: {{tvstatus.bonPointsWeek}}
+			</span>
+				
+			</div>
+				
+	
 
 
 			</div>

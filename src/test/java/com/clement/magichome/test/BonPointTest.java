@@ -1,5 +1,6 @@
 package com.clement.magichome.test;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.clement.magichome.object.BonPoint;
+import com.clement.magichome.object.BonPointSum;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.BonPointRepository;
 
@@ -35,10 +37,17 @@ public class BonPointTest {
 	}
 
 	public void insertBonPointBilanNegatif() {
+		Calendar cal = Calendar.getInstance();
+		Date today = cal.getTime();
+		cal.add(Calendar.MONTH, -1);
+		Date oneMonthAgo = cal.getTime();
 		bonPointRepository.deleteAll();
-		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
-		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
-		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
+		bonPointRepository.save(new BonPoint(20, 20, today, "recompense"));
+		bonPointRepository.save(new BonPoint(-20, -20, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-20, -20, oneMonthAgo, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-20, -10, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, 0, today, "desobeissance"));
+		bonPointRepository.save(new BonPoint(-1000, -1000, today, "desobeissance"));
 	}
 
 	public void insertBonPointBilanPositif() {
@@ -47,6 +56,7 @@ public class BonPointTest {
 		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
 		bonPointRepository.save(new BonPoint(-10, -10, new Date(), "desobeissance"));
 	}
+
 	public void insertBonPointBilanNull() {
 		bonPointRepository.deleteAll();
 		bonPointRepository.save(new BonPoint(10, 10, new Date(), "recompense"));
@@ -58,7 +68,7 @@ public class BonPointTest {
 	@Test
 	public void testSumBonPoint() {
 		insertBonPointBilanNegatif();
-		Integer sumBonPoint = bonPointDaoImpl.sumBonPoint();
+		Integer sumBonPoint = bonPointDaoImpl.sumBonPointV2().getTotal().intValue();
 		org.junit.Assert.assertEquals(-10, sumBonPoint.intValue());
 	}
 
@@ -80,20 +90,30 @@ public class BonPointTest {
 	public void testCompensatePointRecompenseBilanPositif() {
 		insertBonPointBilanPositif();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(2L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(2L, bonPointDaoImpl.countEntityConsumed());
 	}
 
 	@Test
 	public void testCompensatePointRecompenseBilanNegatif() {
 		insertBonPointBilanNegatif();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(2L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(2L, bonPointDaoImpl.countEntityConsumed());
 	}
+
 	@Test
 	public void testCompensatePointRecompenseBilanNul() {
 		insertBonPointBilanNull();
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		org.junit.Assert.assertEquals(4L,bonPointDaoImpl.countEntityConsumed());
+		org.junit.Assert.assertEquals(4L, bonPointDaoImpl.countEntityConsumed());
+	}
+
+	@Test
+	public void testSumPointBilanNegatif() {
+		insertBonPointBilanNegatif();
+		BonPointSum bonPointSum = bonPointDaoImpl.sumBonPointV2();
+		org.junit.Assert.assertEquals(-30L, bonPointSum.getTotal().longValue());
+		BonPointSum bonPointSumBeginningOfWeek = bonPointDaoImpl.sumBonPointBeginningOfWeek();
+		org.junit.Assert.assertEquals(-10L, bonPointSumBeginningOfWeek.getTotal().longValue());
 	}
 
 }

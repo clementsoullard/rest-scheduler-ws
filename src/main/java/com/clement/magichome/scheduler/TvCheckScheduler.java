@@ -26,6 +26,7 @@ import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.TVStatus;
 import com.clement.magichome.object.TVWrapper;
+import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.ChannelRepository;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
@@ -51,6 +52,9 @@ public class TvCheckScheduler {
 	private ChannelRepository channelRepository;
 
 	@Resource
+	private BonPointDaoImpl bonPointDaoImpl;
+
+	@Resource
 	private PropertyManager propertyManager;
 
 	@Autowired
@@ -72,8 +76,8 @@ public class TvCheckScheduler {
 	/**
 	 * Every 15 sec. check the status of the TV and .
 	 */
-	@Scheduled(cron = "*/15 * * * * *")
-	public void updateSandbyStatus() {
+	@Scheduled(cron = "*/20 * * * * *")
+	public void updateTvStatus() {
 		InputStream is = getStreamStanbyStateFromLivebox();
 		if (is != null) {
 			InputStreamReader xml = new InputStreamReader(is);
@@ -103,13 +107,37 @@ public class TvCheckScheduler {
 		} else {
 			tvWrapper = new TVWrapper();
 		}
-		if(tvWrapper.getResult()!=null){
-		tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
+
+		/***
+		 * Update the number of bon point
+		 * TODO is it necessary to perform this avery 15 sec. 
+		 * 
+		 */
+		if (tvWrapper.getResult() != null) {
+			tvWrapper.getResult().setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
 		}
+
+		/***
+		 * Update the number of bons points from the beginning of the week.
+		 * TODO is it necessary to perform this avery 15 sec. 
+		 */
+		if (tvWrapper.getResult() != null) {
+			tvWrapper.getResult().setBonPointsWeek(bonPointDaoImpl.sumBonPointBeginningOfWeek().getTotal().intValue());
+		}
+
+		/***
+		 * Update the number of second remaining
+		 */
+		if (tvWrapper.getResult() != null) {
+			tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
+		}
+		/**
+		 * Update when the next credit will happen
+		 */
 		if (dayScheduler.getCreditTask() != null) {
 			tvWrapper.getResult().setDateOfCredit(dayScheduler.getCreditTask().getExecutionDate());
 			tvWrapper.getResult().setAmountOfCreditInMinutes(dayScheduler.getCreditTask().getMinutes());
-			}
+		}
 	}
 
 	/** *Cache map for channel name */
