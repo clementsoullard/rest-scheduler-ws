@@ -16,13 +16,15 @@ import com.clement.magichome.dto.PunitionResult;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.LogEntry;
-import com.clement.magichome.object.TVStatus;
+import com.clement.magichome.object.WebStatus;
+import com.clement.magichome.object.livebox.TVStatus;
 import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.scheduler.TvCheckScheduler;
 import com.clement.magichome.service.BonPointRepository;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.LogRepositoryImpl;
+import com.clement.magichome.service.StatusService;
 
 @RestController
 public class TVSchedulerController {
@@ -45,9 +47,12 @@ public class TVSchedulerController {
 	@Autowired
 	LogRepositoryImpl logRepositoryImpl;
 
+	@Autowired
+	StatusService statusService;
+
 	@RequestMapping("/credit")
 	public CreditResult credit(@RequestParam(value = "value", defaultValue = "90") Integer value) throws Exception {
-		TVStatus tvStatus = tvCheckScheduler.getStandByState();
+		WebStatus tvStatus = statusService.getStatus();
 		CreditResult creditResult = new CreditResult("Ok");
 		if (fileService.writeCountDown(value)) {
 			// The value is written in the file, we assume that it is properly
@@ -61,8 +66,11 @@ public class TVSchedulerController {
 	}
 
 	@RequestMapping("/tvstatus")
-	public TVStatus tvStatus() throws Exception {
-		TVStatus tvStatus = tvCheckScheduler.getStandByState();
+	public WebStatus tvStatus() throws Exception {
+		dayScheduler.computeNextOccurenceOfCredit();
+		statusService.updateTvStatusLivelyParameters();
+		statusService.updateLessLivelyParameters();
+		WebStatus tvStatus = statusService.getStatus();
 		return tvStatus;
 	}
 
@@ -77,12 +85,12 @@ public class TVSchedulerController {
 		bonPointRepository
 				.save(new BonPoint(punition.getValue(), punition.getValue(), new Date(), punition.getRationale()));
 		PunitionResult punitionResult = new PunitionResult();
-		if(punition.getValue()<0){
-		punitionResult.setMessage("La punition a été appliquée");
-		}else{
+		if (punition.getValue() < 0) {
+			punitionResult.setMessage("La punition a été appliquée");
+		} else {
 			punitionResult.setMessage("Les bons point ont bien été attribué");
 		}
-		dayScheduler.scheduleForTheDay();
+		dayScheduler.computeNextOccurenceOfCredit();
 		return punitionResult;
 	}
 }

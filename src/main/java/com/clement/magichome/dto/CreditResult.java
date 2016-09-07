@@ -1,12 +1,13 @@
 package com.clement.magichome.dto;
 
-import com.clement.magichome.object.TVStatus;
+import com.clement.magichome.object.WebStatus;
+import com.clement.magichome.object.livebox.TVStatus;
 
 public class CreditResult {
 
 	private String content;
 
-	private TVStatus status;
+	private WebStatus status;
 
 	public CreditResult(String content) {
 		this.content = content;
@@ -16,7 +17,7 @@ public class CreditResult {
 		return content;
 	}
 
-	public void setStatus(TVStatus status) {
+	public void setStatus(WebStatus status) {
 		this.status = status;
 	}
 
@@ -24,7 +25,7 @@ public class CreditResult {
 		this.content = content;
 	}
 
-	public TVStatus getStatus() {
+	public WebStatus getStatus() {
 		return status;
 	}
 }

@@ -53,19 +53,18 @@ public class DayScheduler {
 	 * The future credit information that will be displayed, it probably make
 	 * sense to merge it into a single class.
 	 */
-	// private FutureCredit futureCredit;
 
 	/** Credit task */
 	private CreditTask creditTask;
+
 	/** */
 	private ScheduledFuture<CreditTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
-	@Scheduled(cron = "0 * * * * *")
-	public void scheduleForTheDay() throws IOException {
+	@Scheduled(cron = "0 0 * * * *")
+	public void computeNextOccurenceOfCredit() throws IOException {
 
 		LOG.debug("Checking if task is here at  " + new Date());
-
 		Calendar calendar = Calendar.getInstance();
 
 		/* **/
@@ -82,8 +81,10 @@ public class DayScheduler {
 			scheduledFuture.cancel(false);
 			creditTask = null;
 		}
-
-		minutesAllowed = checkTimeToGive(calendar);
+/**
+ * First we check on the current day if there is a credit possible.
+ */
+		minutesAllowed = checkTimeToGiveWithoutPunition(calendar);
 
 		/**
 		 * This is to avoid that the calendar loop eternally, if no day ever
@@ -93,7 +94,7 @@ public class DayScheduler {
 
 		while (minutesAllowed < 0 && numberOfDayIntheFuture < 20) {
 			calendar.add(Calendar.DATE, 1);
-			minutesAllowed = checkTimeToGive(calendar);
+			minutesAllowed = checkTimeToGiveWithoutPunition(calendar);
 			numberOfDayIntheFuture++;
 		}
 
@@ -102,6 +103,9 @@ public class DayScheduler {
 		 */
 		Date futureDate = calendar.getTime();
 
+		/**
+		 * Here the minutes modifier for the punishement computed are 
+		 */
 		Integer minuteModifierForBonPoint = bonPointDaoImpl.pointToDistribute(-minutesAllowed, minutesAllowed / 2);
 		LOG.debug("There would be a modifier of " + minuteModifierForBonPoint + " on " + futureDate);
 
@@ -140,14 +144,15 @@ public class DayScheduler {
 	}
 
 	/**
-	 * Depending on the day of the week, some minutes would be granted.
+	 * Depending on the day of the week, some minutes would be granted it is
+	 * returned here not considering the potential punishment.
 	 * 
 	 * @param dayOfWeek
 	 * @param calendarDateToGrantMinutes
 	 * @return the number of minutes to be granted. If the time where it should
 	 *         be granted is passed, then -1 is returned.
 	 */
-	private int checkTimeToGive(Calendar calendarDateToGrantMinutes) {
+	private int checkTimeToGiveWithoutPunition(Calendar calendarDateToGrantMinutes) {
 
 		int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
 		int minutesAllowed = 0;

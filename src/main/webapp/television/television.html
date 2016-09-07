@@ -66,18 +66,18 @@
 		<div class="panel-body">
 			<div class="row">
 				<span class="col-sm-6 btn-tv"> Statut Télé</span><span
-					ng-if="tvstatus.data.activeStandbyState==0"
+					ng-if="tvstatus.activeStandbyState==0"
 					class="col-sm-3 label label-success  btn-tv"> On </span> <span
-					ng-if="tvstatus.data.activeStandbyState==1"
+					ng-if="tvstatus.activeStandbyState==1"
 					class="col-sm-3  label label-danger  btn-tv"> Off </span>
 			</div>
 			<!-- Chaine regardée-->
 
 			<div class="row">
 				<div
-					ng-if="tvstatus.data.activeStandbyState==0 && tvstatus.data.playedMediaId">
+					ng-if="tvstatus.activeStandbyState==0 && tvstatus.playedMediaId">
 					<span class="col-sm-6  btn-tv"> Chaine </span> <span
-						class="col-sm-3 label label-info  btn-tv">{{tvstatus.data.playedMediaId}}</span>
+						class="col-sm-3 label label-info  btn-tv">{{tvstatus.playedMediaId}}</span>
 				</div>
 			</div>
 
