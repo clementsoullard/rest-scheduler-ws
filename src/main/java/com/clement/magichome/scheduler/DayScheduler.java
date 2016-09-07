@@ -38,7 +38,7 @@ public class DayScheduler {
 	public final static int TIME_IS_PASSED = -1;
 
 	DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
-	DateFormat dfLcd = new SimpleDateFormat("EEE d hh:mm", Locale.FRENCH);
+	DateFormat dfLcd = new SimpleDateFormat("EEE d HH:mm", Locale.FRENCH);
 
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -108,15 +108,15 @@ public class DayScheduler {
 		int minutesGranted = minutesAllowed + minuteModifierForBonPoint;
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-			LOG.debug("Schedule " + minutesGranted + " mn  on " + futureDate);
+			LOG.debug("Schedule " + minutesGranted + " m  on " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
 			creditTask.setExecutionDate(futureDate);
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
-			fileService.writeSecondLine("" + minutesGranted + "mn " + dfLcd.format(futureDate));
+			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(futureDate));
 		} else {
 			creditTask.setMinutes(minutesGranted);
-			fileService.writeSecondLine("" + minutesGranted + "mn " + dfLcd.format(creditTask.getExecutionDate()));
+			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(creditTask.getExecutionDate()));
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
 
