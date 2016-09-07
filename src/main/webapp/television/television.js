@@ -9,7 +9,7 @@ angular.module('myApp.television', ['ngRoute'])
   });
 }])
 
-.controller('TelevisionCtrl',  ['$scope','$http', '$mdDialog', '$mdMedia', function($scope,$http, $mdDialog, $mdMedia) {
+.controller('TelevisionCtrl',  ['$scope','$http', '$mdDialog', '$mdMedia','$interval', function($scope,$http, $mdDialog, $mdMedia,$interval) {
 
 	  /**
 	   * Pin initialization for the session 
@@ -29,10 +29,17 @@ angular.module('myApp.television', ['ngRoute'])
 	 * Retrieve the TV status at page Loading
 	 * 
 	 */
-   $http.get('/tvscheduler/tvstatus').
+  $scope.getStatus = function () {
+  $http.get('/tvscheduler/tvstatus').
         success(function(data) {
             $scope.tvstatus = data;
         });
+  }
+  $scope.getStatus();
+  /**
+   * This refresh the status every 20 seconds
+   */
+   $interval($scope.getStatus, 20000);
 	/**
 	 * Control the TV
 	 * 
