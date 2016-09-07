@@ -24,12 +24,13 @@ import org.springframework.stereotype.Component;
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
-import com.clement.magichome.object.TVStatus;
-import com.clement.magichome.object.TVWrapper;
+import com.clement.magichome.object.livebox.TVStatus;
+import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.ChannelRepository;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
+import com.clement.magichome.service.StatusService;
 import com.google.gson.Gson;
 
 @Configuration
@@ -46,6 +47,8 @@ public class TvCheckScheduler {
 	static final Logger LOG = LoggerFactory.getLogger(TvCheckScheduler.class);
 
 	@Resource
+	StatusService statusService;
+	@Resource
 	private LogRepository logRepository;
 
 	@Resource
@@ -56,15 +59,6 @@ public class TvCheckScheduler {
 
 	@Resource
 	private PropertyManager propertyManager;
-
-	@Autowired
-	private DayScheduler dayScheduler;
-
-	private Gson gson = new Gson();
-
-	private TVWrapper tvWrapper = new TVWrapper();
-
-	private Map<Integer, Float> minutesPerChannel = new HashMap<Integer, Float>();
 
 	private Date from = new Date();
 
@@ -78,65 +72,9 @@ public class TvCheckScheduler {
 	 */
 	@Scheduled(cron = "*/20 * * * * *")
 	public void updateTvStatus() {
-		InputStream is = getStreamStanbyStateFromLivebox();
-		if (is != null) {
-			InputStreamReader xml = new InputStreamReader(is);
-			tvWrapper = gson.fromJson(xml, TVWrapper.class);
-			Integer activeStandbyState = tvWrapper.getResult().getData().getActiveStandbyState();
-			Boolean standbyState = (activeStandbyState == 1);
-			if (!standbyState) {
-				Integer channel = tvWrapper.getResult().getData().getPlayedMediaId();
-				if (channel != null) {
-					Float minutes = minutesPerChannel.get(channel);
-					if (minutes == null) {
-						minutes = 0F;
-					}
-					minutes += .25F;
-					minutesPerChannel.put(channel, minutes);
-				}
-			}
-			fileService.writeStandby(standbyState);
-			Boolean relayStatus = fileService.getTvStatusRelay();
-			tvWrapper.getResult().setRelayStatus(relayStatus);
-
-			if (!relayStatus && !standbyState) {
-				pressOnOffButton();
-			}
-			LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
-
-		} else {
-			tvWrapper = new TVWrapper();
-		}
-
-		/***
-		 * Update the number of bon point
-		 * TODO is it necessary to perform this avery 15 sec. 
-		 * 
-		 */
-		if (tvWrapper.getResult() != null) {
-			tvWrapper.getResult().setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
-		}
-
-		/***
-		 * Update the number of bons points from the beginning of the week.
-		 * TODO is it necessary to perform this avery 15 sec. 
-		 */
-		if (tvWrapper.getResult() != null) {
-			tvWrapper.getResult().setBonPointsWeek(bonPointDaoImpl.sumBonPointBeginningOfWeek().getTotal().intValue());
-		}
-
-		/***
-		 * Update the number of second remaining
-		 */
-		if (tvWrapper.getResult() != null) {
-			tvWrapper.getResult().setRemainingSecond(fileService.getSecondRemaining());
-		}
-		/**
-		 * Update when the next credit will happen
-		 */
-		if (dayScheduler.getCreditTask() != null) {
-			tvWrapper.getResult().setDateOfCredit(dayScheduler.getCreditTask().getExecutionDate());
-			tvWrapper.getResult().setAmountOfCreditInMinutes(dayScheduler.getCreditTask().getMinutes());
+		Boolean shouldPressOnOffButton = statusService.updateTvStatusLivelyParameters();
+		if (shouldPressOnOffButton) {
+			pressOnOffButton();
 		}
 	}
 
@@ -149,6 +87,7 @@ public class TvCheckScheduler {
 	@Scheduled(cron = "7 */5 * * * *")
 	public void putInDb() throws IOException {
 		to = new Date();
+		Map<Integer, Float> minutesPerChannel = statusService.getMinutesPerChannel();
 		for (Integer channel : minutesPerChannel.keySet()) {
 			Float minutes = minutesPerChannel.get(channel);
 			String channelName = getChannelName(channel);
@@ -198,42 +137,6 @@ public class TvCheckScheduler {
 			}
 		}
 
-	}
-
-	/**
-	 * Contact the livebox and get the status of it.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	private InputStream getStreamStanbyStateFromLivebox() {
-		try {
-			String uri;
-			if (propertyManager.getProductionMode()) {
-				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
-			} else {
-				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-inactif.json";
-			}
-			URL url = new URL(uri);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/xml");
-			return connection.getInputStream();
-		} catch (IOException e) {
-			LOG.error("Could not connect to the live box");
-			return null;
-		}
-	}
-
-	/**
-	 * Get the tv status
-	 * 
-	 * @param withRefresh
-	 *            if with refresh is required, there is a specifi
-	 * @return
-	 */
-	public TVStatus getStandByState() {
-		return tvWrapper.getResult();
 	}
 
 }

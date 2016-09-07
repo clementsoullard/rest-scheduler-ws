@@ -1,4 +1,4 @@
-package com.clement.magichome.object;
+package com.clement.magichome.object.livebox;
 
 public class TVWrapper {
 	private TVStatus result;

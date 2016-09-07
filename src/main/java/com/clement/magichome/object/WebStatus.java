@@ -12,14 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.clement.magichome.scheduler.DayScheduler;
 
-/**
- * This is return by the web service to give the TV status.
- * 
- * @author cleme
- *
- */
-public class TVStatus {
-
+public class WebStatus {
 	public final static DateFormat df = new SimpleDateFormat("EEEEE dd, HH:mm", Locale.FRANCE);
 	/** The date of the future credit. */
 	private Date dateOfCredit;
@@ -29,6 +22,28 @@ public class TVStatus {
 
 	/** The number of bon points */
 	private Integer bonPoints;
+
+	/** Status of the TV read from the livebox */
+	private Integer activeStandbyState;
+
+	public Integer getActiveStandbyState() {
+		return activeStandbyState;
+	}
+
+	public void setActiveStandbyState(Integer activeStandbyState) {
+		this.activeStandbyState = activeStandbyState;
+	}
+
+	public Integer getPlayedMediaId() {
+		return playedMediaId;
+	}
+
+	public void setPlayedMediaId(Integer playedMediaId) {
+		this.playedMediaId = playedMediaId;
+	}
+
+	/** The channel that is being watched */
+	private Integer playedMediaId;
 
 	/** The number of bon points */
 	private Integer bonPointsWeek;
@@ -40,9 +55,6 @@ public class TVStatus {
 
 	/** Number of seconds remaining */
 	private Integer remainingSecond;
-
-	/** The data from the TV */
-	private TVData data;
 
 	public Integer getRemainingSecond() {
 		return remainingSecond;
@@ -65,14 +77,6 @@ public class TVStatus {
 
 	public void setRemainingSecond(Integer remaininingSecond) {
 		this.remainingSecond = remaininingSecond;
-	}
-
-	public TVData getData() {
-		return data;
-	}
-
-	public void setData(TVData data) {
-		this.data = data;
 	}
 
 	public Boolean getRelayStatus() {
