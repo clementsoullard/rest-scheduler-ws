@@ -19,7 +19,9 @@ public class CreditTask implements Runnable {
 
 	/** The number of minutes that will be granted */
 
-	private Integer minutes;
+	private Integer minutesGranted;
+
+	private Integer minutesModifier;
 
 	private Date executionDate;
 
@@ -37,19 +39,19 @@ public class CreditTask implements Runnable {
 
 	@Override
 	public void run() {
-		LOG.debug("Credit " + minutes);
-		fileService.writeCountDown(minutes);
+		LOG.info("Credit de " + minutesGranted + " initialement programmé le " + executionDate);
+		fileService.writeCountDown(minutesGranted * 60);
 		bonPointDaoImpl.compensateBonEtMauvaisPoint();
-		bonPointDaoImpl.removePunition(minutes);
+		bonPointDaoImpl.removePunition(minutesModifier);
 		dayScheduler.setCreditTask(null);
 	}
 
 	public void setMinutes(Integer minutes) {
-		this.minutes = minutes;
+		this.minutesGranted = minutes;
 	}
 
 	public Integer getMinutes() {
-		return minutes;
+		return minutesGranted;
 	}
 
 	public Date getExecutionDate() {
@@ -60,4 +62,7 @@ public class CreditTask implements Runnable {
 		this.executionDate = executionDate;
 	}
 
+	public void setMinutesModifier(Integer minutesModifier) {
+		this.minutesModifier = minutesModifier;
+	}
 }

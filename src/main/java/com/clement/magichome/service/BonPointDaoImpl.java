@@ -118,8 +118,8 @@ public class BonPointDaoImpl {
 	}
 
 	/**
-	 * This compute the sum of the good and bad point starting for the
-	 * beginning of the data collection.
+	 * This compute the sum of the good and bad point starting for the beginning
+	 * of the data collection.
 	 * 
 	 * @return
 	 */
@@ -167,11 +167,11 @@ public class BonPointDaoImpl {
 			 * '$pointConsumed' },count: { $sum: 1 }}}]
 			 */
 			AggregationResults<BonPointSum> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", BonPointSum.class);
-			BonPointSum bps=bonPointSum.getUniqueMappedResult();
-			if(bps!=null){
-			return bps;}
-			else{
-				bps=new BonPointSum();
+			BonPointSum bps = bonPointSum.getUniqueMappedResult();
+			if (bps != null) {
+				return bps;
+			} else {
+				bps = new BonPointSum();
 				bps.setTotal(0L);
 				return bps;
 			}
@@ -216,18 +216,6 @@ public class BonPointDaoImpl {
 		}
 	}
 
-	/**
-	 * 
-	 * @return the sum of bon points available (Not counting the privé de télé.)
-	 */
-	// public Integer sumBonPoint() {
-	// Integer sum = 0;
-	// List<BonPoint> bonPoints = findPointsAvailable();
-	// for (BonPoint bonPoint : bonPoints) {
-	// sum += bonPoint.getPointConsumed();
-	// }
-	// return sum;
-	// }
 
 	/**
 	 * This is called by the scheduler to compute the number of point to
@@ -258,6 +246,7 @@ public class BonPointDaoImpl {
 	 * @param pointToRemove
 	 */
 	public void removePunition(Integer pointToRemove) {
+		LOG.info("Décompte des point de punition " + pointToRemove);
 		Integer takenOutPoint = pointToRemove;
 		if (pointToRemove > 0) {
 			List<BonPoint> bonPointsPositifs = findBonPointsAvailable();

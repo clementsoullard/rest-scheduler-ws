@@ -81,9 +81,9 @@ public class DayScheduler {
 			scheduledFuture.cancel(false);
 			creditTask = null;
 		}
-/**
- * First we check on the current day if there is a credit possible.
- */
+		/**
+		 * First we check on the current day if there is a credit possible.
+		 */
 		minutesAllowed = checkTimeToGiveWithoutPunition(calendar);
 
 		/**
@@ -104,7 +104,7 @@ public class DayScheduler {
 		Date futureDate = calendar.getTime();
 
 		/**
-		 * Here the minutes modifier for the punishement computed are 
+		 * Here the minutes modifier for the punishement computed are
 		 */
 		Integer minuteModifierForBonPoint = bonPointDaoImpl.pointToDistribute(-minutesAllowed, minutesAllowed / 2);
 		LOG.debug("There would be a modifier of " + minuteModifierForBonPoint + " on " + futureDate);
@@ -112,14 +112,17 @@ public class DayScheduler {
 		int minutesGranted = minutesAllowed + minuteModifierForBonPoint;
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
-			LOG.debug("Schedule " + minutesGranted + " m  on " + futureDate);
+			LOG.info("Programmation de " + minutesGranted + " m  pour le " + futureDate);
 			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
+			creditTask.setMinutesModifier(minuteModifierForBonPoint);
 			creditTask.setExecutionDate(futureDate);
+
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
 			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(futureDate));
 		} else {
 			creditTask.setMinutes(minutesGranted);
+			creditTask.setMinutesModifier(minuteModifierForBonPoint);
 			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(creditTask.getExecutionDate()));
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
