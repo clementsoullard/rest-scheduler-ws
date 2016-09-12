@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.validator.cfg.defs.MaxDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.BonPointSum;
+import com.clement.magichome.object.DatePriveDeTele;
 
 /**
  * This class help to track the bon points.
@@ -142,6 +144,30 @@ public class BonPointDaoImpl {
 	}
 
 	/**
+	 * This compute the sum of the good and bad point starting for the beginning
+	 * of the data collection.
+	 * 
+	 * @return
+	 */
+	public DatePriveDeTele maxDate() {
+		try {
+			Aggregation agg = Aggregation.newAggregation(match(Criteria.where("point").is(-1000)),
+					
+					group().max( "noTimeGivenBefore").as("maxDate"));
+			/*
+			 * Here is the raw query used in mongo db shell [{$match: {point:
+			 * {$ne: -1000}}},{$group:{ _id: { },totalAmount: { $sum:
+			 * '$pointConsumed' },count: { $sum: 1 }}}]
+			 */
+			AggregationResults<DatePriveDeTele> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", DatePriveDeTele.class);
+			return bonPointSum.getUniqueMappedResult();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
 	 * This compute the sume of the good and bad point starting for the
 	 * beginning of the data collection.
 	 * 
@@ -202,20 +228,21 @@ public class BonPointDaoImpl {
 	 * 
 	 * @return
 	 */
-	public void remove1DayPriveDeTele() {
+	public void remove1DayPriveDeTele(Date noMinutesGivenBefore) {
 		try {
 			BasicQuery query = new BasicQuery("{pointConsumed: -1000}");
 			List<BonPoint> bonPoints = mongoTemplate.find(query, BonPoint.class);
 			if (bonPoints.size() > 0) {
 				BonPoint bonPoint = bonPoints.get(0);
 				bonPoint.setPointConsumed(0);
+				bonPoint.setNoTimeGivenBefore(noMinutesGivenBefore);
 				mongoTemplate.save(bonPoint);
+
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}
-
 
 	/**
 	 * This is called by the scheduler to compute the number of point to

@@ -18,6 +18,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.CreditTask;
 import com.clement.magichome.service.FileService;
@@ -64,9 +65,14 @@ public class DayScheduler {
 	@Scheduled(cron = "0 0 * * * *")
 	public void computeNextOccurenceOfCredit() throws IOException {
 
-		LOG.debug("Checking if task is here at  " + new Date());
 		Calendar calendar = Calendar.getInstance();
-
+		DatePriveDeTele priveDeTeleUntil = bonPointDaoImpl.maxDate();
+		if (priveDeTeleUntil != null && priveDeTeleUntil.getMaxDate().after(calendar.getTime())) {
+			calendar.setTime(priveDeTeleUntil.getMaxDate());
+			calendar.add(Calendar.DATE, 1);
+		}
+		LOG.debug("Checking if task is here at  " + calendar.getTime());
+		
 		/* **/
 		int minutesAllowed = -1;
 
@@ -210,7 +216,7 @@ public class DayScheduler {
 
 		else if (bonPointDaoImpl.isPriveDeTele() && minutesAllowed > 0) {
 			LOG.debug("The guy is deprived , we must check the next day.");
-			bonPointDaoImpl.remove1DayPriveDeTele();
+			bonPointDaoImpl.remove1DayPriveDeTele(calendarDateToGrantMinutes.getTime());
 			minutesAllowed = -1;
 		}
 
