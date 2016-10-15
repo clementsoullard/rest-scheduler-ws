@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import com.clement.magichome.dto.MinutesPerChannel;
 import com.clement.magichome.dto.graph.Data;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.LogEntry;
+import com.clement.magichome.object.MinutesToday;
 
 @Repository
 public class LogRepositoryImpl {
@@ -51,6 +53,36 @@ public class LogRepositoryImpl {
 				}
 			}
 			return jsChart;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * The number of minut watched today
+	 * 
+	 * @return
+	 */
+	public Long getMinutesToday() {
+		try {
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 1);
+			calendar.set(Calendar.SECOND, 0);
+			Date todayMidnight = calendar.getTime();
+			Wrapper jsChart = new Wrapper();
+			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").in("TV")),
+					match(Criteria.where("fromDate").gt(todayMidnight)), group().sum("minutes").as("minutes"));
+			LOG.debug("Construction de la requete effectuée");
+			MinutesToday minutesToday = mongoTemplate.aggregate(aggregation, "log", MinutesToday.class)
+					.getUniqueMappedResult();
+			LOG.debug("Requete effectue");
+			if (minutesToday == null || minutesToday.getMinutes() == null) {
+				return 0L;
+			}
+			return minutesToday.getMinutes();
+
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

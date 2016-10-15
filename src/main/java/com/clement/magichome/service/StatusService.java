@@ -48,6 +48,9 @@ public class StatusService {
 	@Autowired
 	private BonPointDaoImpl bonPointDaoImpl;
 
+	@Autowired
+	private LogRepositoryImpl logRepositoryImpl;
+
 	@Resource
 	private FileService fileService;
 
@@ -158,6 +161,8 @@ public class StatusService {
 		 * 
 		 */
 		webStatus.setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
+
+		webStatus.setMinutesToday(logRepositoryImpl.getMinutesToday().intValue());
 
 		/***
 		 * Update the number of bons points from the beginning of the week. TODO

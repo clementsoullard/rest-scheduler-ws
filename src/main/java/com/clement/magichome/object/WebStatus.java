@@ -56,6 +56,17 @@ public class WebStatus {
 	/** Number of seconds remaining */
 	private Integer remainingSecond;
 
+	/** Number of seconds remaining */
+	private Integer minutesToday;
+
+	public Integer getMinutesToday() {
+		return minutesToday;
+	}
+
+	public void setMinutesToday(Integer minutesToday) {
+		this.minutesToday = minutesToday;
+	}
+
 	public Integer getRemainingSecond() {
 		return remainingSecond;
 	}

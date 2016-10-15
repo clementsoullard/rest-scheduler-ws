@@ -67,12 +67,14 @@ public class DayScheduler {
 
 		Calendar calendar = Calendar.getInstance();
 		DatePriveDeTele priveDeTeleUntil = bonPointDaoImpl.maxDate();
-		if (priveDeTeleUntil != null && priveDeTeleUntil.getMaxDate().after(calendar.getTime())) {
+
+		if (priveDeTeleUntil != null && priveDeTeleUntil.getMaxDate() != null
+				&& priveDeTeleUntil.getMaxDate().after(calendar.getTime())) {
 			calendar.setTime(priveDeTeleUntil.getMaxDate());
 			calendar.add(Calendar.DATE, 1);
 		}
 		LOG.debug("Checking if task is here at  " + calendar.getTime());
-		
+
 		/* **/
 		int minutesAllowed = -1;
 
