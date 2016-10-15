@@ -1,9 +1,0 @@
-<button ng-click="tv(-2)")">ON</button>
-<button ng-click="tv(-1)">OFF</button>
-<button ng-click="tv(1800)">30mn</button>
-<p>The ID is {{tvstatus.data.<div ng-controller="Hello">
-			<p>The ID is {{greeting.id}}</p>
-			<p>The content is {{greeting.content}}</p>
-		</div>id}}</p>
-<p>The content is {{greeting.content}}</p>
-

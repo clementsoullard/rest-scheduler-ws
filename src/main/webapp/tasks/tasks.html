@@ -1,0 +1,64 @@
+<head>
+<meta charset="UTF-8">
+</head>
+
+<div class="container">
+
+	<div class="alert alert-danger" ng-if="punitionMessage&&error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{punitionMessage}}
+	</div>
+	<div class="alert alert-success" ng-if="punitionMessage&&!error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{punitionMessage}}
+	</div>
+	<div>
+		<img src="../img/tele.jpg" width="175" height="182" alt="" />
+	</div>
+	<div class="panel panel-default boxing-panel">
+		<div class="panel-heading">
+			<h3 class="panel-title">Taches</h3>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<span class="col-sm-3">
+					<button ng-click="showAdvancedControlTV($event,-2)"
+						class="btn btn-success col-sm-12">ON</button>
+				</span> <span class="col-sm-3"><button
+						ng-click="showAdvancedControlTV($event,-1)"
+						class="btn btn-danger col-sm-12">OFF</button> </span> <span class="col-sm-3">
+					<button ng-click="showAdvancedControlTV($event,1800)"
+						class="btn btn-info   col-sm-12">30mn</button>
+				</span> <span class="col-sm-3">
+					<button ng-click="showAdvancedControlTV($event,3600)"
+						class="btn btn-info col-sm-12">60mn</button>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default boxing-panel">
+		<div class="panel-heading">
+			<h3 class="panel-title">Punition/récompense</h3>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+			 <span class="col-sm-4">
+				<button
+					ng-click="showAdvancedConfirmPunition($event,-20,'desobeissance')"
+					class="btn btn-danger col-sm-12">Mauvais point</button>
+			</span> <span class="col-sm-4">	<button
+					ng-click="showAdvancedConfirmPunition($event,-1000,'privetele')"
+					class="btn btn-danger col-sm-12">Privé de télé</button>
+			</span> <span class="col-sm-4">	<button
+					ng-click="showAdvancedConfirmPunition($event,20,'recompense')"
+					class="btn btn-success col-sm-12">Obéit</button>
+			</span>
+			</div>
+		</div>
+	</div>
+
+
+
+
+</div>
