@@ -54,6 +54,9 @@ public class TaskService {
 				task = new Task("Solfège", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
+				task = new Task("Piano", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
 				task = new Task("Sortir", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
@@ -64,6 +67,9 @@ public class TaskService {
 				taskRepository.save(task);
 				tasks.add(task);
 				task = new Task("Aider à faire le ménage", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Jeu de société", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
 				break;

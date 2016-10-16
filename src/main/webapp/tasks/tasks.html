@@ -22,12 +22,18 @@
 			<ul class="list-group" ng-repeat="task in tasks">
 		<li class="list-group-item">
 			<div class="row">
-			<span class="col-sm-10" >
+			<span class="col-sm-9" >
 			<strong >
-				{{task.taskName}} </strong> 
+				{{task.taskName}}</strong> 
 			</span>
-			<span class="col-sm-2" ng-style="{'background-color': team.color, 'width': '50px','display': 'block'}">&nbsp;</span>
-			<a ng-click="remove(team.idr)"><i class="close pull-right">&times;</i></a>
+			<span class="col-sm-1" >
+		<input type="checkbox"
+      	 ng-model="task.done"
+        ng-change="update(task)">
+        </span>	
+        
+        	<span class="col-sm-1" ng-style="{'background-color': team.color, 'width': '50px','display': 'block'}">&nbsp;</span>
+			<a ng-click="remove(task.idr)"><i style="margin-right:10px" class="close pull-right">&times;</i></a>
 		
 		</div>
 		</li>
