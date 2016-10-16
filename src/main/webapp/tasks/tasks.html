@@ -19,46 +19,21 @@
 		<div class="panel-heading">
 			<h3 class="panel-title">Taches</h3>
 		</div>
-		<div class="panel-body">
+			<ul class="list-group" ng-repeat="task in tasks">
+		<li class="list-group-item">
 			<div class="row">
-				<span class="col-sm-3">
-					<button ng-click="showAdvancedControlTV($event,-2)"
-						class="btn btn-success col-sm-12">ON</button>
-				</span> <span class="col-sm-3"><button
-						ng-click="showAdvancedControlTV($event,-1)"
-						class="btn btn-danger col-sm-12">OFF</button> </span> <span class="col-sm-3">
-					<button ng-click="showAdvancedControlTV($event,1800)"
-						class="btn btn-info   col-sm-12">30mn</button>
-				</span> <span class="col-sm-3">
-					<button ng-click="showAdvancedControlTV($event,3600)"
-						class="btn btn-info col-sm-12">60mn</button>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="panel panel-default boxing-panel">
-		<div class="panel-heading">
-			<h3 class="panel-title">Punition/récompense</h3>
-		</div>
-		<div class="panel-body">
-			<div class="row">
-			 <span class="col-sm-4">
-				<button
-					ng-click="showAdvancedConfirmPunition($event,-20,'desobeissance')"
-					class="btn btn-danger col-sm-12">Mauvais point</button>
-			</span> <span class="col-sm-4">	<button
-					ng-click="showAdvancedConfirmPunition($event,-1000,'privetele')"
-					class="btn btn-danger col-sm-12">Privé de télé</button>
-			</span> <span class="col-sm-4">	<button
-					ng-click="showAdvancedConfirmPunition($event,20,'recompense')"
-					class="btn btn-success col-sm-12">Obéit</button>
+			<span class="col-sm-10" >
+			<strong >
+				{{task.taskName}} </strong> 
 			</span>
-			</div>
+			<span class="col-sm-2" ng-style="{'background-color': team.color, 'width': '50px','display': 'block'}">&nbsp;</span>
+			<a ng-click="remove(team.idr)"><i class="close pull-right">&times;</i></a>
+		
 		</div>
+		</li>
+</ul>
 	</div>
 
-
-
+	
 
 </div>

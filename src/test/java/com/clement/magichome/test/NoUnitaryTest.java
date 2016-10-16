@@ -15,6 +15,8 @@ import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.CreditTask;
 import com.clement.magichome.service.FileService;
+import com.clement.magichome.service.LogRepository;
+import com.clement.magichome.service.LogRepositoryImpl;
 
 import junit.framework.Assert;
 
@@ -28,6 +30,9 @@ public class NoUnitaryTest {
 	FileService fileService;
 	@Autowired
 	BonPointDaoImpl bonPointDaoImpl;
+
+	@Autowired
+	LogRepositoryImpl logRepository;
 
 	@Autowired
 	DayScheduler dayScheduler;
@@ -53,6 +58,12 @@ public class NoUnitaryTest {
 	public void testMaxDate() {
 		DatePriveDeTele dpt=bonPointDaoImpl.maxDate();
 		org.junit.Assert.assertEquals(dpt.getMaxDate(),new Date());
+
+	}
+	@Test
+	public void testMinutesToday() {
+		Long dpt=logRepository.getMinutesToday();
+		org.junit.Assert.assertEquals(dpt,new Date());
 
 	}
 

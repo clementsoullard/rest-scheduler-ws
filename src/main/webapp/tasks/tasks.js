@@ -10,6 +10,46 @@ angular.module('myApp.television', ['ngRoute'])
 }])
 
 .controller('tasksCtrl',  ['$scope','$http', '$mdDialog', '$mdMedia','$interval', function($scope,$http, $mdDialog, $mdMedia,$interval) {
-	
+
+
+	 
+	/**
+	 * Insert a new entry fonction
+	 */
+			
+	 $scope.update = function (user) {
+	    $http.post('ws/tasks',user).
+	        success(function(data) {
+	     	  	$scope.message='Thanks for applying. You have been properly registred. You can also register husband/wife and children after closing this window.';
+	       	  	$scope.error=false;
+	            list();
+	        }).
+			error(function(data) {
+	     	  	$scope.message='An issue occured';
+	       	  	$scope.error=false;
+			})
+			};
+				
+	/**
+	 * List the entries
+	 */		
+		 function list(){
+			 $http.get('today-tasks').
+		      success(function(data) {
+		        	console.log(JSON.stringify(data._embedded));
+		            $scope.tasks = data;
+		        });
+			 }
+		/**
+		* List the entries
+		*/		
+		$scope.remove = function(id){ $http.delete('ws/tasks/'+id).
+				success(function(data) {
+			  	$scope.message='The entry has been removed.';
+				list();
+			});
+		}
+			
+list(); 
 	
 }]);
