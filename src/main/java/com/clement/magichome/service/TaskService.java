@@ -48,10 +48,13 @@ public class TaskService {
 				tasks.add(task);
 				break;
 			case Calendar.SUNDAY:
-				task = new Task("Faire du sport (psicine/footing)", false, date);
+				task = new Task("Faire du sport (piscine/footing)", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
 				task = new Task("Solfège", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Piano", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
 				task = new Task("Sortir", false, date);
@@ -66,12 +69,64 @@ public class TaskService {
 				task = new Task("Aider à faire le ménage", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
+				task = new Task("Jeu de société", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
 				break;
-
+			case Calendar.MONDAY:
+				task = new Task("Solfège", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Devoir", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				break;
+			case Calendar.TUESDAY:
+				task = new Task("Piano", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Devoir", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				break;
+			case Calendar.WEDNESDAY:
+				task = new Task("Solfège", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Aider à faire le ménage", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Devoir", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				break;
+			case Calendar.THURSDAY:
+				task = new Task("Piano", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Devoir", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				break;
+			case Calendar.FRIDAY:
+				task = new Task("Solfège", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				break;
 			}
 
 		}
 		return tasks;
 
+	}
+
+	/**
+	 * 
+	 * @param task
+	 */
+	public void saveTaskForToday(Task task) {
+		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+		task.setDate(date);
+		taskRepository.save(task);
 	}
 }
