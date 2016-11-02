@@ -72,6 +72,9 @@ public class TaskService {
 				task = new Task("Jeu de société", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
+				task = new Task("S'habiller", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
 				break;
 			case Calendar.MONDAY:
 				task = new Task("Solfège", false, date);

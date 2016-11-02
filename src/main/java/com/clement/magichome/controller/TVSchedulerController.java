@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -80,7 +81,7 @@ public class TVSchedulerController {
 		return jsChart;
 	}
 
-	@RequestMapping("/punition")
+	@RequestMapping(value="/punition",method=RequestMethod.POST)
 	public PunitionResult punition(@RequestBody Punition punition) throws Exception {
 		bonPointRepository
 				.save(new BonPoint(punition.getValue(), punition.getValue(), new Date(), punition.getRationale()));
@@ -88,7 +89,7 @@ public class TVSchedulerController {
 		if (punition.getValue() < 0) {
 			punitionResult.setMessage("La punition a été appliquée");
 		} else {
-			punitionResult.setMessage("Les bons point ont bien été attribué");
+			punitionResult.setMessage("Les bons points ont bien été attribués");
 		}
 		dayScheduler.computeNextOccurenceOfCredit();
 		return punitionResult;

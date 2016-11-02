@@ -127,11 +127,11 @@ public class DayScheduler {
 			creditTask.setExecutionDate(futureDate);
 
 			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
-			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(futureDate));
+			fileService.writeSecondLine("Prochain crédit:" + minutesGranted + "mn " + dfLcd.format(futureDate));
 		} else {
 			creditTask.setMinutes(minutesGranted);
 			creditTask.setMinutesModifier(minuteModifierForBonPoint);
-			fileService.writeSecondLine("" + minutesGranted + "m " + dfLcd.format(creditTask.getExecutionDate()));
+			fileService.writeSecondLine("" + minutesGranted + "mn " + dfLcd.format(creditTask.getExecutionDate()));
 			LOG.debug("Already scheduled task, no need to schedule another one just updating the minutes");
 		}
 
