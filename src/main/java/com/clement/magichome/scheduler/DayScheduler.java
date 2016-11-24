@@ -34,11 +34,15 @@ import com.clement.magichome.service.FileService;
 
 public class DayScheduler {
 
+	private static final int SCHEDULER_OFF = -1;
+	private static final int SCHEDULER_ON = -2;
+
 	static final Logger LOG = LoggerFactory.getLogger(DayScheduler.class);
 
-	public final static int TIME_IS_PASSED = -1;
+	public final static int TIME_IS_PASSED = SCHEDULER_OFF;
 
 	DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
+	
 	DateFormat dfLcd = new SimpleDateFormat("EEE d HH:mm", Locale.FRENCH);
 
 	@Resource
@@ -76,7 +80,7 @@ public class DayScheduler {
 		LOG.debug("Checking if task is here at  " + calendar.getTime());
 
 		/* **/
-		int minutesAllowed = -1;
+		int minutesAllowed = SCHEDULER_OFF;
 
 		/**
 		 * dans le cas ou nous sommes privé de tele alors le calendrier commence
@@ -143,7 +147,29 @@ public class DayScheduler {
 	 */
 	@Scheduled(cron = "0 0 2 * * *")
 	public void switchOffInNight() throws IOException {
-		fileService.writeCountDown(-1);
+		fileService.writeCountDown(SCHEDULER_OFF);
+	}
+
+	/**
+	 * 2 o'clock the switch goes to Off, no matter what happened before
+	 */
+	@Scheduled(cron = "0 0 10 * * *")
+	public void switchOnForCris() throws IOException {
+		if (isWorkingDay()) {
+			fileService.writeCountDown(SCHEDULER_ON);
+			LOG.info("Allumage de la TV pour Cris");
+		}
+	}
+
+	/**
+	 * Every night at 2 o'clock the switch goes to Off, no matter what happened
+	 * before
+	 */
+	@Scheduled(cron = "0 0 17 * * *")
+	public void switchOffForCris() throws IOException {
+		if (isWorkingDay()) {
+			LOG.info("Extinction de la TV pour le retour de César");
+		}
 	}
 
 	public CreditTask getCreditTask() {
@@ -192,7 +218,7 @@ public class DayScheduler {
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			// minutesAllowed = 60;
 			// During school, there are no minute allowed.
-			minutesAllowed = -1;
+			minutesAllowed = SCHEDULER_OFF;
 		} else if (dayOfWeek == Calendar.SATURDAY) {
 			//
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 11);
@@ -213,18 +239,39 @@ public class DayScheduler {
 		if (new Date().after(calendarDateToGrantMinutes.getTime())) {
 			LOG.debug("The current date is after " + calendarDateToGrantMinutes.getTime()
 					+ ", we must check the next day.");
-			minutesAllowed = -1;
+			minutesAllowed = SCHEDULER_OFF;
 		}
 
 		else if (bonPointDaoImpl.isPriveDeTele() && minutesAllowed > 0) {
 			LOG.debug("The guy is deprived , we must check the next day.");
 			bonPointDaoImpl.remove1DayPriveDeTele(calendarDateToGrantMinutes.getTime());
-			minutesAllowed = -1;
+			minutesAllowed = SCHEDULER_OFF;
 		}
 
 		LOG.debug("Checking for date " + df.format(calendarDateToGrantMinutes.getTime()) + " minutes allowed "
 				+ minutesAllowed);
 		return minutesAllowed;
+	}
+
+	/**
+	 * 
+	 * @return true if we are a working day and cris can watch TV during the
+	 *         day.
+	 */
+	boolean isWorkingDay() {
+		Calendar calendar = Calendar.getInstance();
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		switch (dayOfWeek) {
+		case Calendar.MONDAY:
+		case Calendar.TUESDAY:
+		case Calendar.THURSDAY:
+		case Calendar.FRIDAY:
+			return true;
+		default:
+			return false;
+
+		}
+
 	}
 
 }
