@@ -42,7 +42,7 @@ public class DayScheduler {
 	public final static int TIME_IS_PASSED = SCHEDULER_OFF;
 
 	DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
-	
+
 	DateFormat dfLcd = new SimpleDateFormat("EEE d HH:mm", Locale.FRENCH);
 
 	@Resource
@@ -169,6 +169,7 @@ public class DayScheduler {
 	public void switchOffForCris() throws IOException {
 		if (isWorkingDay()) {
 			LOG.info("Extinction de la TV pour le retour de César");
+			fileService.writeCountDown(SCHEDULER_OFF);
 		}
 	}
 

@@ -17,6 +17,7 @@ import com.clement.magichome.dto.PunitionResult;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.LogEntry;
+import com.clement.magichome.object.Vacances;
 import com.clement.magichome.object.WebStatus;
 import com.clement.magichome.object.livebox.TVStatus;
 import com.clement.magichome.scheduler.DayScheduler;
@@ -26,6 +27,8 @@ import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.LogRepositoryImpl;
 import com.clement.magichome.service.StatusService;
+import com.clement.magichome.service.VacancesRepository;
+import com.clement.magichome.service.VacancesService;
 
 @RestController
 public class TVSchedulerController {
@@ -41,6 +44,11 @@ public class TVSchedulerController {
 
 	@Resource
 	private LogRepository logRepository;
+
+	@Resource
+	private VacancesRepository vacancesRepository;
+	@Resource
+	private VacancesService vacancesService;
 
 	@Resource
 	private BonPointRepository bonPointRepository;
@@ -81,7 +89,7 @@ public class TVSchedulerController {
 		return jsChart;
 	}
 
-	@RequestMapping(value="/punition",method=RequestMethod.POST)
+	@RequestMapping(value = "/punition", method = RequestMethod.POST)
 	public PunitionResult punition(@RequestBody Punition punition) throws Exception {
 		bonPointRepository
 				.save(new BonPoint(punition.getValue(), punition.getValue(), new Date(), punition.getRationale()));
@@ -93,5 +101,15 @@ public class TVSchedulerController {
 		}
 		dayScheduler.computeNextOccurenceOfCredit();
 		return punitionResult;
+	}
+
+	@RequestMapping(value = "/create-vacances", method = RequestMethod.POST)
+
+	public void creatVacances(@RequestBody Vacances vacances) throws Exception {
+		if (!vacancesService.checkVacanceNotExisting(vacances)) {
+			vacancesRepository.save(vacances);
+		} else {
+			throw new Exception("Ces vacances existent déjà");
+		}
 	}
 }

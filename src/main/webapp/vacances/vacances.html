@@ -1,0 +1,33 @@
+<head>
+<meta charset="UTF-8">
+</head>
+
+<div class="container">
+
+	<h1>Vacances</h1>
+
+	<div class="alert alert-danger" ng-if="message&&error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{message}}
+	</div>
+	<div class="alert alert-success" ng-if="message&&!error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{message}}
+	</div>
+
+	<div flex-gt-xs>
+		Date Début:
+		<md-datepicker ng-model="vacances.dateDebut"
+			md-placeholder="Enter date"></md-datepicker>
+		Date Fin
+		<md-datepicker ng-model="vacances.dateFin" md-placeholder="Enter date"></md-datepicker>
+	</div>
+	<div>
+		<button style="float: right" ng-click="submitVacances(vacances)"
+			class="btn btn-info col-sm-2">Sauvegarder</button>
+	</div>
+
+	<h2>Liste des Vacances</h2>
+	<div ng-repeat="vacance in vacancess">{{vacance.dateDebut|
+		date:'MM/dd/yyyy'}} à {{vacance.dateFin|date:'MM/dd/yyyy'}}</div>
+</div>

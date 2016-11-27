@@ -5,7 +5,8 @@
 angular.module('myApp', [
   'ngRoute',
   'myApp.television',
-  'myApp.view2',
+  'myApp.vacances',
+   'myApp.view2',
   'myApp.version',
   'ng-fusioncharts',
   'ngMaterial'
