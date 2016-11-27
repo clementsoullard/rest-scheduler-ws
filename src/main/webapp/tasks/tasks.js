@@ -48,7 +48,7 @@ angular.module('myApp.television', ['ngRoute'])
 					};
 				
 	/**
-	 * List the entries
+	 * List the tasks
 	 */		
 		 function list(){
 			 $http.get('today-tasks').
@@ -58,7 +58,7 @@ angular.module('myApp.television', ['ngRoute'])
 		        });
 			 }
 		/**
-		* List the entries
+		* Remove a task
 		*/		
 		$scope.remove = function(id){ $http.delete('repository/task/'+id).
 				success(function(data) {

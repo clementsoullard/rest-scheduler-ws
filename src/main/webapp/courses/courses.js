@@ -1,17 +1,17 @@
 ﻿'use strict';
 
 angular
-		.module('myApp.vacances', [ 'ngRoute' ])
+		.module('myApp.courses', [ 'ngRoute' ])
 
 		.config([ '$routeProvider', function($routeProvider) {
-			$routeProvider.when('/vacances', {
-				templateUrl : 'vacances/vacances.html',
-				controller : 'VacancesCtrl'
+			$routeProvider.when('/courses', {
+				templateUrl : 'courses/courses.html',
+				controller : 'coursesCtrl'
 			});
 		} ])
 
 		.controller(
-				'VacancesCtrl',
+				'CoursesCtrl',
 				[			'$scope',		'$http',	'$mdDialog',		'$mdMedia',		'$interval',		function($scope, $http, $mdDialog, $mdMedia, $interval) {
 
 					
@@ -55,16 +55,6 @@ angular
 							}
 						
 				
-							/**
-							* Remove a vacances
-							*/		
-							$scope.remove = function(id){ $http.delete('repository/vacances/'+id).
-									success(function(data) {
-								  	$scope.message='The vacances has been removed.';
-								  	 listVacances();
-								  	 $scope.vacances={};
-								});
-							}
 							
 							/**
 							 * Exceuté au chargement de la page

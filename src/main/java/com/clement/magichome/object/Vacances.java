@@ -21,7 +21,7 @@ public class Vacances {
 		this.dateFin = dateFin;
 	}
 
-	public String getrIdr() {
+	public String getIdr() {
 		return id;
 	}
 
@@ -44,5 +44,9 @@ public class Vacances {
 	public void setDateFin(Date dateFin) {
 		this.dateFin = dateFin;
 	}
+
+	
+	
+	
 
 }

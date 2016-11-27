@@ -1,0 +1,21 @@
+<head>
+<meta charset="UTF-8">
+</head>
+
+<div class="container">
+
+	<h1>Courses</h1>
+
+	<div class="alert alert-danger" ng-if="message&&error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{message}}
+	</div>
+	<div class="alert alert-success" ng-if="message&&!error">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+		{{message}}
+	</div>
+
+
+	<h2>Liste de courses</h2>
+	<div ng-repeat="vacance in vacancess"></div>
+</div>
