@@ -22,6 +22,8 @@ import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.CreditTask;
 import com.clement.magichome.service.FileService;
+import com.clement.magichome.service.VacancesService;
+import com.clement.magichome.service.VacancesService.Profile;
 
 @Configuration
 @EnableScheduling
@@ -47,6 +49,9 @@ public class DayScheduler {
 
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
+
+	@Resource
+	private VacancesService vacancesService;
 
 	@Resource
 	private FileService fileService;
@@ -192,7 +197,10 @@ public class DayScheduler {
 	 */
 	private int checkTimeToGiveWithoutPunition(Calendar calendarDateToGrantMinutes) {
 
-		int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
+		// int dayOfWeek = calendarDateToGrantMinutes.get(Calendar.DAY_OF_WEEK);
+		Date dateToCheck = calendarDateToGrantMinutes.getTime();
+
+		VacancesService.Profile profile = vacancesService.getProfile(dateToCheck);
 		int minutesAllowed = 0;
 
 		/** FIXME, test only */
@@ -205,12 +213,20 @@ public class DayScheduler {
 		}
 
 		//
-		if (dayOfWeek == Calendar.WEDNESDAY) {
+
+		if (profile == Profile.HOLIDAY) {
+			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 14);
+			calendarDateToGrantMinutes.set(Calendar.MINUTE, 00);
+			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
+			minutesAllowed = 60;
+		}
+
+		else if (profile == Profile.WEDNESDAY) {
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 16);
 			calendarDateToGrantMinutes.set(Calendar.MINUTE, 00);
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			minutesAllowed = 60;
-		} else if (dayOfWeek >= Calendar.MONDAY && dayOfWeek <= Calendar.FRIDAY) {
+		} else if (profile == Profile.WORKDAY) {
 			// During day of the week, this should change during holiday
 			// #see
 			// https://tvscheduler.atlassian.net/secure/RapidBoard.jspa?rapidView=1&view=detail&selectedIssue=TS-30
@@ -220,24 +236,28 @@ public class DayScheduler {
 			// minutesAllowed = 60;
 			// During school, there are no minute allowed.
 			minutesAllowed = SCHEDULER_OFF;
-		} else if (dayOfWeek == Calendar.SATURDAY) {
+		} else if (profile == Profile.SATURDAY) {
 			//
-			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 11);
+			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 14);
 			calendarDateToGrantMinutes.set(Calendar.MINUTE, 00);
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			minutesAllowed = 60;
-		} else if (dayOfWeek >= Calendar.SUNDAY) {
+		}
+		if (profile == Profile.SUNDAY) {
 			//
 			calendarDateToGrantMinutes.set(Calendar.HOUR_OF_DAY, 11);
 			calendarDateToGrantMinutes.set(Calendar.MINUTE, 00);
 			calendarDateToGrantMinutes.set(Calendar.SECOND, 00);
 			minutesAllowed = 60;
 		}
+
 		/**
 		 * In the case we are after the time when the minutes have been granted,
 		 * we should return -1;
 		 */
-		if (new Date().after(calendarDateToGrantMinutes.getTime())) {
+		if (new Date().after(calendarDateToGrantMinutes.getTime()))
+
+		{
 			LOG.debug("The current date is after " + calendarDateToGrantMinutes.getTime()
 					+ ", we must check the next day.");
 			minutesAllowed = SCHEDULER_OFF;
@@ -260,19 +280,8 @@ public class DayScheduler {
 	 *         day.
 	 */
 	boolean isWorkingDay() {
-		Calendar calendar = Calendar.getInstance();
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		switch (dayOfWeek) {
-		case Calendar.MONDAY:
-		case Calendar.TUESDAY:
-		case Calendar.THURSDAY:
-		case Calendar.FRIDAY:
-			return true;
-		default:
-			return false;
-
-		}
-
+		Profile profile = vacancesService.getProfile(new Date());
+		return profile == Profile.WORKDAY;
 	}
 
 }

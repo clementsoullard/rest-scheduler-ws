@@ -2,7 +2,6 @@ package com.clement.magichome.test;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -14,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.Vacances;
 import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.service.LogRepositoryImpl;
 import com.clement.magichome.service.VacancesRepository;
 import com.clement.magichome.service.VacancesService;
+import com.clement.magichome.service.VacancesService.Profile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -46,8 +45,11 @@ public class VacancesTest {
 		vacancesRepository.save(new Vacances(df.parse("2016-12-19"), df.parse("2017-01-02")));
 	}
 
+	/**
+	 * 
+	 */
 	@Test
-	public void testVacances() throws Exception {
+	public void testVacancesAdd() throws Exception {
 		insertDataset1();
 		Vacances vacances = new Vacances();
 		Date dateDebut = df.parse("2016-01-01");
@@ -78,6 +80,23 @@ public class VacancesTest {
 		vacances.setDateFin(dateFin);
 		exist = vacancesService.checkVacanceNotExisting(vacances);
 		Assert.assertEquals(true, exist);
+	}
+
+	@Test
+	public void testInVacances() throws Exception {
+		insertDataset1();
+		Date date = df.parse("2016-12-25");
+		Profile inVacances = vacancesService.getProfile(date);
+		Assert.assertEquals(true, inVacances==Profile.HOLIDAY);
+		date = df.parse("2016-12-17");
+		inVacances = vacancesService.getProfile(date);
+		Assert.assertEquals(false, inVacances==Profile.HOLIDAY);
+		date = df.parse("2017-01-03");
+		inVacances = vacancesService.getProfile(date);
+		Assert.assertEquals(false, inVacances==Profile.HOLIDAY);
+		date = df.parse("2016-11-11");
+		inVacances = vacancesService.getProfile(date);
+		Assert.assertEquals(true, inVacances==Profile.HOLIDAY);
 	}
 
 }
