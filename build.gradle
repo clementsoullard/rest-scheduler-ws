@@ -38,6 +38,8 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    
   }
 
 task wrapper(type: Wrapper) {
@@ -46,7 +48,7 @@ task wrapper(type: Wrapper) {
 
 remotes {
  webServer {
-    host = '192.168.1.20'
+    host = '192.168.1.32'
     user = 'clement'
     identity = file('id_rsa')
   }

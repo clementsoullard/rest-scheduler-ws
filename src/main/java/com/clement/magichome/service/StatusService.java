@@ -17,10 +17,8 @@ import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.WebStatus;
-import com.clement.magichome.object.livebox.TVStatus;
 import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.scheduler.DayScheduler;
-import com.clement.magichome.scheduler.TvCheckScheduler;
 import com.google.gson.Gson;
 
 @Repository

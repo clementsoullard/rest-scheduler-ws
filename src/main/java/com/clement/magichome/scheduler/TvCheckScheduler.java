@@ -1,8 +1,6 @@
 package com.clement.magichome.scheduler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -14,24 +12,19 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
-import com.clement.magichome.object.livebox.TVStatus;
-import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.ChannelRepository;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.StatusService;
-import com.google.gson.Gson;
 
 @Configuration
 @EnableAutoConfiguration

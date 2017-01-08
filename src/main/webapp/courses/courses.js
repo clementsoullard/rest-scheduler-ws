@@ -6,60 +6,74 @@ angular
 		.config([ '$routeProvider', function($routeProvider) {
 			$routeProvider.when('/courses', {
 				templateUrl : 'courses/courses.html',
-				controller : 'coursesCtrl'
+				controller : 'CoursesCtrl'
 			});
 		} ])
 
 		.controller(
 				'CoursesCtrl',
-				[			'$scope',		'$http',	'$mdDialog',		'$mdMedia',		'$interval',		function($scope, $http, $mdDialog, $mdMedia, $interval) {
-
+				[	'$scope','$http','$mdDialog','$mdMedia','$interval',function($scope, $http, $mdDialog, $mdMedia, $interval) {
+					
 					
 					/**
-					 * List the teams that are displayed on the right to select for the match
-					 */		
-					function listVacances(){
-					 $http.get('repository/vacances').
-					 success(function(data) {
-					//	console.log(JSON.stringify(data._embedded));
-					     $scope.vacancess = data._embedded.vacances;
-					});
-					};
-
-					
-							/**
-							 * Soumetttre des vacances
-							 */
-					
-							$scope.submitVacances = function(vacances) {
-								$http
-										.post(
-												'create-vacances',
-												vacances)
-										.success(
-												function(data) {
-													console
-															.log('Succès de la sauvegarde de vacances');
-													console.log('Echec de l\'appel WS punir');
-										         
-													listVacances();
-												})
-										.error(
-												function(data) {
-													   $scope.message = data.message;
-														$scope.error = true;
-
-													console
-															.log('Echec de la sauvegarde de vacances');
-												})
-							}
-						
-				
+					 * Modify achat done (or not)
+					 */
+							
+					 $scope.update = function (achat) {
+							console.log("Update acaht");
+							$http.post('ws-update-achat',achat).
+						        success(function(data) {
+						     	  	$scope.message='Achat enregistré';
+						       	  	$scope.error=false;
+						            list();
+						        }).
+								error(function(data) {
+						     	  	$scope.message='An issue occured';
+						       	  	$scope.error=true;
+								})
+								};
+					/**
+					 * Create an new achat 
+					 */
+										
+				$scope.create = function (achat) {
+					console.log("Create one achat");
+						    $http.post('ws-create-achat',achat).
+							        success(function(data) {
+							     	  	$scope.message='Achat enregistré';
+							       	  	$scope.error=false;
+									         list();
+						}).
+										error(function(data) {
+									     	  	$scope.message='An issue occured';
+									       	  	$scope.error=true;
+										})
+									};
+		
 							
 							/**
-							 * Exceuté au chargement de la page
-							 */
-							
-							 listVacances()
-				
+							 * List the tasks
+							 */		
+								 function list(){
+									 $http.get('ws-active-achat').
+								      success(function(data) {
+								        	console.log(JSON.stringify(data));
+								            $scope.achats = data;
+								            console.log("Recuperation de la liste " );
+								        });
+									 }
+								/**
+								* Remove a task
+								*/		
+								$scope.remove = function(id){ $http.delete('repository/achat/'+id).
+										success(function(data) {
+									  	$scope.message='The entry has been removed.';
+										list();
+									});
+								}
+					/**
+					 * Executed systematically
+					 */				
+						list(); 			
+					
 				} ]);

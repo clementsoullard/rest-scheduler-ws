@@ -1,29 +1,17 @@
 package com.clement.magichome.service;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
-import org.hibernate.validator.cfg.defs.MaxDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import com.clement.magichome.object.BonPoint;
-import com.clement.magichome.object.BonPointSum;
-import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.object.Vacances;
 import com.mongodb.BasicDBObject;
 
@@ -95,7 +83,7 @@ public class VacancesService {
 				if (dayOfWeek == Calendar.WEDNESDAY) {
 					return Profile.WEDNESDAY;
 				} else if (dayOfWeek == Calendar.SATURDAY) {
-					return Profile.WEDNESDAY;
+					return Profile.SATURDAY;
 				} else if (dayOfWeek == Calendar.SUNDAY) {
 					return Profile.SUNDAY;
 				} else {

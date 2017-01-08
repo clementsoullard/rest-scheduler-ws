@@ -1,7 +1,5 @@
 package com.clement.magichome.dto;
 
-import com.clement.magichome.object.livebox.TVStatus;
-
 public class PunitionResult {
 
 	private String message;

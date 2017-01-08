@@ -26,7 +26,7 @@ angular.module('myApp.television', ['ngRoute'])
 	        }).
 			error(function(data) {
 	     	  	$scope.message='An issue occured';
-	       	  	$scope.error=false;
+	       	  	$scope.error=true;
 			})
 			};
 		/**

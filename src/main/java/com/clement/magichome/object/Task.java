@@ -26,6 +26,16 @@ public class Task {
 
 	private Boolean done;
 
+	private Boolean open;
+
+	public Boolean getOpen() {
+		return open;
+	}
+
+	public void setOpen(Boolean open) {
+		this.open = open;
+	}
+
 	private Date date;
 
 	public String getTaskName() {

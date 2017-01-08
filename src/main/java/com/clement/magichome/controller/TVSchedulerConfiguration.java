@@ -13,4 +13,6 @@ public class TVSchedulerConfiguration extends RepositoryRestMvcConfiguration {
 	protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
 		config.setBasePath(MY_BASE_URI_URI);
 	}
+	
+	
 }

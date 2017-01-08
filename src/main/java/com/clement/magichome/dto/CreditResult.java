@@ -1,7 +1,6 @@
 package com.clement.magichome.dto;
 
 import com.clement.magichome.object.WebStatus;
-import com.clement.magichome.object.livebox.TVStatus;
 
 public class CreditResult {
 

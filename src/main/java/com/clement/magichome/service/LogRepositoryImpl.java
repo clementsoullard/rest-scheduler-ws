@@ -21,7 +21,6 @@ import org.springframework.stereotype.Repository;
 import com.clement.magichome.dto.MinutesPerChannel;
 import com.clement.magichome.dto.graph.Data;
 import com.clement.magichome.dto.graph.Wrapper;
-import com.clement.magichome.object.LogEntry;
 import com.clement.magichome.object.MinutesToday;
 
 @Repository
