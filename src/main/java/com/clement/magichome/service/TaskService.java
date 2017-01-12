@@ -21,6 +21,11 @@ public class TaskService {
 	@Resource
 	private TaskRepository taskRepository;
 
+	/**
+	 * List the taks predefined for the day.
+	 * 
+	 * @return
+	 */
 	public List<Task> getTaskForToday() {
 		Calendar calendar = Calendar.getInstance();
 		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
@@ -43,7 +48,7 @@ public class TaskService {
 				task = new Task("jeu de Société", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
-				task = new Task("Devoir", false, date);
+				task = new Task("Lecture", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
 				break;
@@ -64,6 +69,9 @@ public class TaskService {
 				taskRepository.save(task);
 				tasks.add(task);
 				task = new Task("Devoir", false, date);
+				taskRepository.save(task);
+				tasks.add(task);
+				task = new Task("Lecture", false, date);
 				taskRepository.save(task);
 				tasks.add(task);
 				task = new Task("Aider à faire le ménage", false, date);

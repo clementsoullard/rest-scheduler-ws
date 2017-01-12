@@ -32,24 +32,45 @@ angular
 						       	  	$scope.error=true;
 								})
 								};
-					/**
-					 * Create an new achat 
-					 */
-										
-				$scope.create = function (achat) {
-					console.log("Create one achat");
-						    $http.post('ws-create-achat',achat).
-							        success(function(data) {
-							     	  	$scope.message='Achat enregistré';
-							       	  	$scope.error=false;
-									         list();
+								/**
+								 * Create an new achat 
+								 */
+													
+							$scope.create = function (achat) {
+								console.log("Create one achat");
+									    $http.post('ws-create-achat',achat).
+										        success(function(data) {
+										     	  	$scope.message='Achat enregistré';
+							  	$scope.error=false;
+							  	list();
+								$scope.achat={};
+								  
+									}).
+													error(function(data) {
+												     	  	$scope.message='An issue occured';
+												       	  	$scope.error=true;
+													})
+												};
+
+						/**
+						* Terminer les course
+						*/
+																	
+						$scope.finish = function (achat) {
+						console.log("Courses terminées");
+						$http.post('ws-finish-achat',achat).
+						success(function(data) {
+						$scope.message='Cousrses terminée';
+						$scope.error=false;
+						list();
 						}).
-										error(function(data) {
-									     	  	$scope.message='An issue occured';
-									       	  	$scope.error=true;
-										})
-									};
-		
+						error(function(data) {
+						$scope.message='An issue occured';
+						$scope.error=true;
+						})
+						};
+
+												
 							
 							/**
 							 * List the tasks

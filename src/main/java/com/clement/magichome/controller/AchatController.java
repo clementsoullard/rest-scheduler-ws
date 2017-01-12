@@ -28,8 +28,13 @@ public class AchatController {
 	}
 
 	@RequestMapping(value = "/ws-update-achat", method = RequestMethod.POST)
-	public void saveTasksToday(@RequestBody Achat achat) throws Exception {
+	public void updateAchat(@RequestBody Achat achat) throws Exception {
 		achatService.update(achat);
+	}
+
+	@RequestMapping(value = "/ws-finish-achat")
+	public void finishAchat() throws Exception {
+		achatService.finish();
 	}
 
 }
