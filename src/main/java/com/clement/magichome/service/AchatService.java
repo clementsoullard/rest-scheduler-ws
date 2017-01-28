@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
@@ -20,6 +22,8 @@ import com.clement.magichome.object.Achat;
 
 @Repository
 public class AchatService {
+
+	static final Logger LOG = LoggerFactory.getLogger(AchatService.class);
 
 	@Resource
 	private PropertyManager propertyManager;
@@ -47,19 +51,18 @@ public class AchatService {
 	}
 
 	/**
+	 * This mean that the purchase is done, we can close all the items.
 	 * 
 	 * @param achat
 	 */
-	public void finish() {
+	public void endAchat() {
+		LOG.info("Cloture de la liste de course");
 		Query query = new BasicQuery("{active: true, done: true}");
-
 		Update update = new Update();
 		update.set("active", false);
 		update.set("dateListClosure", new Date());
 		update.set("identifierList", ObjectId.get());
-
 		mongoTemplate.updateMulti(query, update, Achat.class);
-
 	}
 
 	/**
