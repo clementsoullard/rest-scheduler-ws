@@ -26,6 +26,34 @@ public class WebStatus {
 	/** Status of the TV read from the livebox */
 	private Integer activeStandbyState;
 
+	/** The channel that is being watched */
+	private Integer playedMediaId;
+
+	/** The channel that is being watched */
+	private String channelName;
+
+	public String getChannelName() {
+		return channelName;
+	}
+
+	public void setChannelName(String channelName) {
+		this.channelName = channelName;
+	}
+
+	/** The number of bon points */
+	private Integer bonPointsWeek;
+
+	private final static NumberFormat nf = new DecimalFormat("00");
+
+	/** Gives the status of the relay */
+	private Boolean relayStatus;
+
+	/** Number of seconds remaining */
+	private Integer remainingSecond;
+
+	/** Number of seconds remaining */
+	private Integer minutesToday;
+
 	public Integer getActiveStandbyState() {
 		return activeStandbyState;
 	}
@@ -41,23 +69,6 @@ public class WebStatus {
 	public void setPlayedMediaId(Integer playedMediaId) {
 		this.playedMediaId = playedMediaId;
 	}
-
-	/** The channel that is being watched */
-	private Integer playedMediaId;
-
-	/** The number of bon points */
-	private Integer bonPointsWeek;
-
-	private final static NumberFormat nf = new DecimalFormat("00");
-
-	/** Gives the status of the relay */
-	private Boolean relayStatus;
-
-	/** Number of seconds remaining */
-	private Integer remainingSecond;
-
-	/** Number of seconds remaining */
-	private Integer minutesToday;
 
 	public Integer getMinutesToday() {
 		return minutesToday;

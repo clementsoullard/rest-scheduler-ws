@@ -125,6 +125,7 @@ public class BonPointDaoImpl {
 	 * @return
 	 */
 	public BonPointSum sumBonPointV2() {
+		BonPointSum bonPointSum = null;
 		try {
 			Aggregation agg = Aggregation.newAggregation(
 					match(org.springframework.data.mongodb.core.query.Criteria.where("point").ne(-1000)),
@@ -134,12 +135,17 @@ public class BonPointDaoImpl {
 			 * {$ne: -1000}}},{$group:{ _id: { },totalAmount: { $sum:
 			 * '$pointConsumed' },count: { $sum: 1 }}}]
 			 */
-			AggregationResults<BonPointSum> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", BonPointSum.class);
-			return bonPointSum.getUniqueMappedResult();
+			AggregationResults<BonPointSum> aggregatedResult = mongoTemplate.aggregate(agg, "bonPoint",
+					BonPointSum.class);
+			bonPointSum = aggregatedResult.getUniqueMappedResult();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
-		return null;
+		if (bonPointSum == null) {
+			bonPointSum = new BonPointSum();
+			bonPointSum.setTotal(0L);
+		}
+		return bonPointSum;
 	}
 
 	/**
@@ -151,14 +157,15 @@ public class BonPointDaoImpl {
 	public DatePriveDeTele maxDate() {
 		try {
 			Aggregation agg = Aggregation.newAggregation(match(Criteria.where("point").is(-1000)),
-					
-					group().max( "noTimeGivenBefore").as("maxDate"));
+
+					group().max("noTimeGivenBefore").as("maxDate"));
 			/*
 			 * Here is the raw query used in mongo db shell [{$match: {point:
 			 * {$ne: -1000}}},{$group:{ _id: { },totalAmount: { $sum:
 			 * '$pointConsumed' },count: { $sum: 1 }}}]
 			 */
-			AggregationResults<DatePriveDeTele> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint", DatePriveDeTele.class);
+			AggregationResults<DatePriveDeTele> bonPointSum = mongoTemplate.aggregate(agg, "bonPoint",
+					DatePriveDeTele.class);
 			return bonPointSum.getUniqueMappedResult();
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
@@ -255,7 +262,14 @@ public class BonPointDaoImpl {
 	 * @return
 	 */
 	public Integer pointToDistribute(Integer min, Integer max) {
-		Integer sum = sumBonPointV2().getTotal().intValue();
+		BonPointSum bonPointSum = sumBonPointV2();
+
+		Integer sum = 0;
+		if (bonPointSum != null) {
+			Long result = sumBonPointV2().getTotal();
+			LOG.info("No bon point was distributed so far");
+			sum = result.intValue();
+		}
 		Integer pointToDistribute = Math.round(sum.floatValue() / DISTRIBUTION_FACTOR + (1 * Math.signum(sum)));
 		if (pointToDistribute < min) {
 			pointToDistribute = min;

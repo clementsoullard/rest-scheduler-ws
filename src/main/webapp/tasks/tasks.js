@@ -34,7 +34,7 @@ angular.module('myApp.television', ['ngRoute'])
 			 */
 					
 			 $scope.newForToday = function (task) {
-			    $http.post('today-tasks',task).
+			    $http.post('ws-create-todo',task).
 			        success(function(data) {
 			     	  	$scope.message='Thanks for applying. You have been properly registred. You can also register husband/wife and children after closing this window.';
 			       	  	$scope.error=false;

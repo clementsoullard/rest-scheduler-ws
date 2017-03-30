@@ -22,7 +22,7 @@ public class TasksController {
 		return tasksService.getTaskForToday();
 	}
 
-	@RequestMapping(value="/today-tasks",method=RequestMethod.POST)
+	@RequestMapping(value="/ws-create-todo",method=RequestMethod.POST)
 	public void saveTasksToday(@RequestBody Task task) throws Exception {
 		tasksService.saveTaskForToday(task);
 	}

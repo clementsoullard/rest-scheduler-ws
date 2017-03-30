@@ -156,10 +156,21 @@ public class DayScheduler {
 	}
 
 	/**
-	 * 2 o'clock the switch goes to Off, no matter what happened before
+	 * 10 the switch goes On, if Cesar is in school.
 	 */
 	@Scheduled(cron = "0 0 10 * * *")
 	public void switchOnForCris() throws IOException {
+		if (isWorkingDay()) {
+			fileService.writeCountDown(SCHEDULER_ON);
+			LOG.info("Allumage de la TV pour Cris");
+		}
+	}
+	
+	/**
+	 * 21 PM TV goes on if it is a school day
+	 */
+	@Scheduled(cron = "0 0 21 * * *")
+	public void switchOnInNight() throws IOException {
 		if (isWorkingDay()) {
 			fileService.writeCountDown(SCHEDULER_ON);
 			LOG.info("Allumage de la TV pour Cris");

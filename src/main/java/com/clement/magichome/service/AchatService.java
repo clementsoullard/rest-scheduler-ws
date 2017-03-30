@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
@@ -70,9 +71,26 @@ public class AchatService {
 	 * @param task
 	 */
 	public void createNew(Achat achat) {
-		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
-		achat.setDateSubmit(date);
-		achat.setActive(true);
-		achatRepository.save(achat);
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").is(achat.getName()).and("active").is(true));
+		Long count = mongoTemplate.count(query, Achat.class);
+		/**
+		 * We only insert if the achat does not exist
+		 */
+		if (count == 0) {
+			Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+			achat.setDateSubmit(date);
+			achat.setActive(true);
+			achatRepository.save(achat);
+		}
+	}
+
+	/**
+	 * 
+	 * @param task
+	 */
+	public List<String> distinct() {
+		List<String> distinctName = mongoTemplate.getCollection("achat").distinct("name");
+		return distinctName;
 	}
 }

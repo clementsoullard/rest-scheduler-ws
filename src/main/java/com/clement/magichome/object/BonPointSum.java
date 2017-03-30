@@ -1,5 +1,11 @@
 package com.clement.magichome.object;
 
+/**
+ * Mongo db mapping object
+ * 
+ * @author cleme
+ *
+ */
 public class BonPointSum {
 	private Long total;
 

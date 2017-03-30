@@ -47,6 +47,9 @@ public class StatusService {
 	private BonPointDaoImpl bonPointDaoImpl;
 
 	@Autowired
+	private ChannelRepository channelRepository;
+
+	@Autowired
 	private LogRepositoryImpl logRepositoryImpl;
 
 	@Resource
@@ -81,16 +84,17 @@ public class StatusService {
 			 * In case the TV is on we retrieve the media played id (channel)
 			 */
 			if (!standbyState) {
-				Integer channel = tvWrapper.getResult().getData().getPlayedMediaId();
-				webStatus.setPlayedMediaId(channel);
+				Integer channelId = tvWrapper.getResult().getData().getPlayedMediaId();
+				webStatus.setPlayedMediaId(channelId);
 
-				if (channel != null) {
-					Float minutes = minutesPerChannel.get(channel);
+				webStatus.setChannelName(channelRepository.findByEpgId(channelId.toString()).get(0).getName());
+				if (channelId != null) {
+					Float minutes = minutesPerChannel.get(channelId);
 					if (minutes == null) {
 						minutes = 0F;
 					}
 					minutes += .25F;
-					minutesPerChannel.put(channel, minutes);
+					minutesPerChannel.put(channelId, minutes);
 				}
 			}
 			/**
@@ -132,7 +136,7 @@ public class StatusService {
 			if (propertyManager.getProductionMode()) {
 				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
 			} else {
-				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-inactif.json";
+				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-actif.json";
 			}
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
