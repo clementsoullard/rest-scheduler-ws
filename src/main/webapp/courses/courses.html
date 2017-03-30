@@ -15,12 +15,17 @@
 		{{message}}
 	</div>
 
-	<form novalidate name="newTask" class="simple-form">
+	<form novalidate name="newAchat" class="simple-form">
 		<div class="form-group row">
-			<label for="inputFirstName" class="col-sm-2 col-form-label">
+			<label for="achatName" class="col-sm-2 col-form-label">
 				Achat</label>
-			<div class="col-sm-2">
-				<input type="text" ng-model="achat.name" />
+			<div class="col-sm-4">
+			<!--  	<input type="text" ng-model="achat.name" /> -->
+				<input list="achats" type="text" id="tags" ng-model="achat.name" />
+				
+			<datalist id="achats">
+  				<option ng-repeat="item in potentialAchatsArray" value="{{item.name}}"></option>
+			</datalist>
 			</div>
 		</div>
 
@@ -54,4 +59,6 @@
 		</div>
 		</li>
 </ul>
+
+
 </div>

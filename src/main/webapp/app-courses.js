@@ -7,10 +7,10 @@ angular.module('myApp', [
   'myApp.courses',
   'myApp.version',
   'ng-fusioncharts',
-  'ngMaterial'
+  'ngMaterial',
+  'ui.select'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
-
   $routeProvider.otherwise({redirectTo: '/courses'});
 }]);

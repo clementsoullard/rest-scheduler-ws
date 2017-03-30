@@ -1,0 +1,59 @@
+How to install
+apt-get install openjdk-8-jdk
+ apt-get install mongodb
+unzip apache-tomcat-*.zip
+mv apache-tomcat-* tomcat-8
+cd tomcat-8
+chmow +x bin/*.sh
+
+mkdir /home/clement/tomcat-8/conf-ext
+Create file 
+ /home/clement/tomcat-8/conf-ext/application-prod.properties
+ edit file tomcat-8/bin/setenv.sh
+ chmod +x  tomcat-8/bin/setenv.sh
+ 
+ It contains
+ 
+ #!/bin/sh
+echo Sourcing setenv.sh
+CLASSPATH=$CLASSPATH:$CATALINA_HOME/conf-ext
+JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=prod"
+ 
+vi conf-ext/application-prod.properties
+ It contains 
+ 
+ # To switch of the http port.
+server.port=8080
+spring.data.mongodb.uri=mongodb://192.168.1.21:27017/test
+scheduler.work.path=/home/clement/scheduler/work
+livebox.urlPrefix=http://192.168.1.12:8080
+production.mode=false
+
+
+a2enmod proxy_ajp
+a2enmod proxy_ssl
+a2ensite default-ssl
+ 
+<Location /tvscheduler>
+ProxyPass  ajp://localhost:8009/tvscheduler
+ProxyPassReverse http://www.cesarsuperstar.com/tvscheduler
+allow from all
+</Location>
+
+
+Importthe channel from the channels file in data
+mongoimport --db test --collection channel --type json --file channels.json --jsonArray
+
+Export the certicate from the https serer and copy it in the asset folder of the android project
+
+Disable empty password
+vi /etc/sshd/sshd_config
+
+# Change to no to disable tunnelled clear text passwords
+PasswordAuthentication no
+
+Configurer la box comme dans les PNG du repertoire doc
+
+ 
+ 
+ 
