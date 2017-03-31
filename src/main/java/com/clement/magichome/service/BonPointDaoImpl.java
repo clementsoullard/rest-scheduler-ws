@@ -267,7 +267,7 @@ public class BonPointDaoImpl {
 		Integer sum = 0;
 		if (bonPointSum != null) {
 			Long result = sumBonPointV2().getTotal();
-			LOG.info("No bon point was distributed so far");
+			LOG.debug("No bon point was distributed so far");
 			sum = result.intValue();
 		}
 		Integer pointToDistribute = Math.round(sum.floatValue() / DISTRIBUTION_FACTOR + (1 * Math.signum(sum)));

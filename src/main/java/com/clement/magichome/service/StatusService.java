@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -13,9 +14,11 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.PropertyManager;
+import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.WebStatus;
 import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.scheduler.DayScheduler;
@@ -35,7 +38,12 @@ public class StatusService {
 
 	private WebStatus webStatus;
 
-	private Map<Integer, Float> minutesPerChannel = new HashMap<Integer, Float>();
+	@Value("${scheduler.tvcheckinterval}")
+	private Float timeIncrease;
+	/**
+	 * Store and track the time spent on each channel
+	 */
+	private static Map<Integer, Float> secondsPerChannel = new HashMap<Integer, Float>();
 
 	/**
 	 * TODO The day scheduler shall not be present here.
@@ -57,9 +65,13 @@ public class StatusService {
 
 	/**
 	 * Update TV status on information where you need to be reactive. Those
-	 * parameters are. - Is the TV switched on. - Is the relay switched on. -
-	 * What channel was watched on the instant of the request. This class also
-	 * update the status of the relay (write function)
+	 * parameters are.
+	 * <ul>
+	 * <li>Is the TV switched on.
+	 * <li>Is the relay switched on.
+	 * <li>What channel was watched on the instant of the request.
+	 * </ul>
+	 * This class also update the status of the relay (write function)
 	 * 
 	 * @return
 	 */
@@ -86,15 +98,23 @@ public class StatusService {
 			if (!standbyState) {
 				Integer channelId = tvWrapper.getResult().getData().getPlayedMediaId();
 				webStatus.setPlayedMediaId(channelId);
-
-				webStatus.setChannelName(channelRepository.findByEpgId(channelId.toString()).get(0).getName());
 				if (channelId != null) {
-					Float minutes = minutesPerChannel.get(channelId);
+					List<Channel> channels = channelRepository.findByEpgId(channelId.toString());
+					if (channels != null && channels.size() > 0) {
+						Channel channel = channels.get(0);
+						webStatus.setChannelName(channel.getName());
+					}
+				}
+				if (channelId != null) {
+					Float minutes = secondsPerChannel.get(channelId);
 					if (minutes == null) {
 						minutes = 0F;
 					}
-					minutes += .25F;
-					minutesPerChannel.put(channelId, minutes);
+					/**
+					 * Number of minutes is increased by 20s
+					 */
+					minutes += timeIncrease;
+					secondsPerChannel.put(channelId, minutes);
 				}
 			}
 			/**
@@ -112,7 +132,7 @@ public class StatusService {
 			if (!relayStatus && !standbyState) {
 				shouldPressOnOffButton = true;
 			}
-			LOG.debug("Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
+			LOG.debug("Checking status : Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
 
 		} else {
 			tvWrapper = new TVWrapper();
@@ -120,8 +140,8 @@ public class StatusService {
 		return shouldPressOnOffButton;
 	}
 
-	public Map<Integer, Float> getMinutesPerChannel() {
-		return minutesPerChannel;
+	public Map<Integer, Float> getSecondsPerChannel() {
+		return secondsPerChannel;
 	}
 
 	/**

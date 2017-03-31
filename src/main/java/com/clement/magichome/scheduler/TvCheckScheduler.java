@@ -63,7 +63,7 @@ public class TvCheckScheduler {
 	/**
 	 * Every 15 sec. check the status of the TV and .
 	 */
-	@Scheduled(cron = "*/20 * * * * *")
+	@Scheduled(cron = "*/${scheduler.tvcheckinterval} * * * * *")
 	public void updateTvStatus() {
 		Boolean shouldPressOnOffButton = statusService.updateTvStatusLivelyParameters();
 		if (shouldPressOnOffButton) {
@@ -75,12 +75,12 @@ public class TvCheckScheduler {
 	Map<Integer, String> channelNameCache = new HashMap<Integer, String>();
 
 	/**
-	 * Every 15 sec. check the status of the TV and .
+	 * Every 5 minutes the time spent watching a channel is stored in db.
 	 */
 	@Scheduled(cron = "7 */5 * * * *")
 	public void putInDb() throws IOException {
 		to = new Date();
-		Map<Integer, Float> minutesPerChannel = statusService.getMinutesPerChannel();
+		Map<Integer, Float> minutesPerChannel = statusService.getSecondsPerChannel();
 		for (Integer channel : minutesPerChannel.keySet()) {
 			Float minutes = minutesPerChannel.get(channel);
 			String channelName = getChannelName(channel);

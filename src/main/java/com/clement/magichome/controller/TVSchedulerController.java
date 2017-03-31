@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +58,7 @@ public class TVSchedulerController {
 
 	@Autowired
 	StatusService statusService;
+	static final Logger LOG = LoggerFactory.getLogger(TVSchedulerController.class);
 
 	@RequestMapping("/credit")
 	public CreditResult credit(@RequestParam(value = "value", defaultValue = "90") Integer value) throws Exception {
@@ -74,6 +77,7 @@ public class TVSchedulerController {
 
 	@RequestMapping("/tvstatus")
 	public WebStatus tvStatus() throws Exception {
+		LOG.debug("Controller checking status");
 		dayScheduler.computeNextOccurenceOfCredit();
 		statusService.updateTvStatusLivelyParameters();
 		statusService.updateLessLivelyParameters();
@@ -83,7 +87,7 @@ public class TVSchedulerController {
 
 	@RequestMapping("/chart-channel")
 	public Wrapper chartChannelChart() throws Exception {
-		Wrapper jsChart = logRepositoryImpl.getMinutesPerChannel();
+		Wrapper jsChart = logRepositoryImpl.getHoursPerChannel();
 		return jsChart;
 	}
 

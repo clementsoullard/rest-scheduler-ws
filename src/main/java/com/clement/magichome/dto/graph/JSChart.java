@@ -1,10 +1,16 @@
 package com.clement.magichome.dto.graph;
 
+/**
+ * Represent a chart for TV consumption
+ * 
+ * @author cleme
+ *
+ */
 public class JSChart {
-	
-	
-	
-	String caption = "Consommation Télé par chaine";
+
+	private String caption = "Consommation Télé par chaine (h)";
+
+	private String subCaption = "Depuis le début";
 
 	public String getCaption() {
 		return caption;
@@ -21,8 +27,5 @@ public class JSChart {
 	public void setSubCaption(String subCaption) {
 		this.subCaption = subCaption;
 	}
-
-	String subCaption = "Depuis le début";
-
 
 }

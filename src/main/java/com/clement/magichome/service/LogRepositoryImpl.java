@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
-import com.clement.magichome.dto.MinutesPerChannel;
+import com.clement.magichome.dto.SecondPerChannel;
 import com.clement.magichome.dto.graph.Data;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.MinutesToday;
@@ -31,24 +31,24 @@ public class LogRepositoryImpl {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
-	public Wrapper getMinutesPerChannel() {
+	public Wrapper getHoursPerChannel() {
 		try {
 			Wrapper jsChart = new Wrapper();
 			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").in("TV")),
-					project("channelName", "minutes"), group("channelName").sum("minutes").as("totalMinutes"));
+					project("channelName", "seconds"), group("channelName").sum("seconds").as("totalSeconds"));
 			LOG.debug("Construction de la requete effectuée");
-			AggregationResults<MinutesPerChannel> minutesPerChannelAgg = mongoTemplate.aggregate(aggregation, "log",
-					MinutesPerChannel.class);
+			AggregationResults<SecondPerChannel> minutesPerChannelAgg = mongoTemplate.aggregate(aggregation, "log",
+					SecondPerChannel.class);
 			LOG.debug("Requete effectue");
 			List<Data> datas = jsChart.getData();
-			for (MinutesPerChannel minutesPerChannel : minutesPerChannelAgg) {
+			for (SecondPerChannel minutesPerChannel : minutesPerChannelAgg) {
 				if (minutesPerChannel.getChannelName() != null) {
 					Data data = new Data();
 					data.setLabel(minutesPerChannel.getChannelName());
-					data.setValue(minutesPerChannel.getTotalMinutes());
+					data.setValue(minutesPerChannel.getTotalhours());
 					datas.add(data);
 					LOG.debug(
-							minutesPerChannel.getChannelName().toString() + " " + minutesPerChannel.getTotalMinutes());
+							minutesPerChannel.getChannelName().toString() + " " + minutesPerChannel.getTotalSeconds());
 				}
 			}
 			return jsChart;

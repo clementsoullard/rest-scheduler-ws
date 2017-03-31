@@ -17,7 +17,7 @@ public class LogEntry {
 
 	private String channelName;
 
-	private Float minutes;
+	private Float seconds;
 
 	private Date fromDate;
 
@@ -29,7 +29,7 @@ public class LogEntry {
 	public LogEntry(String metricName, Integer channel, String channelName, Float minutes, Date fromDate, Date toDate) {
 		this.metricName = metricName;
 		this.channel = channel;
-		this.minutes = minutes;
+		this.seconds = minutes;
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.channelName=channelName;
@@ -51,12 +51,12 @@ public class LogEntry {
 		this.channel = channel;
 	}
 
-	public Float getMinutes() {
-		return minutes;
+	public Float getSeconds() {
+		return seconds;
 	}
 
-	public void setMinutes(Float minutes) {
-		this.minutes = minutes;
+	public void setSeconds(Float minutes) {
+		this.seconds = minutes;
 	}
 
 	public Date getFromDate() {
