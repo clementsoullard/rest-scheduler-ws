@@ -70,18 +70,20 @@ public class AchatService {
 	 * 
 	 * @param task
 	 */
-	public void createNew(Achat achat) {
+	public void createNew(Achat achat) throws Exception {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(achat.getName()).and("active").is(true));
 		Long count = mongoTemplate.count(query, Achat.class);
 		/**
 		 * We only insert if the achat does not exist
 		 */
-		if (count == 0) {
+		if (count == 0 && achat.getName() != null && achat.getName().trim().length() != 0) {
 			Date date = DateUtils.truncate(new Date(), Calendar.DATE);
 			achat.setDateSubmit(date);
 			achat.setActive(true);
 			achatRepository.save(achat);
+		} else {
+			throw new Exception("Achat existe déjà ou vide");
 		}
 	}
 
