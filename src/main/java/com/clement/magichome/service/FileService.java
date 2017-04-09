@@ -25,6 +25,7 @@ public class FileService {
 	PropertyManager propertyManager;
 
 	/**
+	 * The count down is what is written to give some minutes
 	 * 
 	 * @param value
 	 * @return true
@@ -47,6 +48,7 @@ public class FileService {
 	}
 
 	/**
+	 * The second line is what is displayed on the LCD
 	 * 
 	 * @param value
 	 * @return true
@@ -63,13 +65,13 @@ public class FileService {
 			ps.close();
 			return true;
 		} catch (FileNotFoundException e) {
-			LOG.error(e.getMessage(),e);
+			LOG.error(e.getMessage(), e);
 		}
 		return false;
 	}
 
 	/**
-	 * Create a file if the Livebox is in Standby mode.
+	 * Create a file if the Livebox is in Standby mode if this file is existing, the countdown will stop.
 	 * 
 	 * @param value
 	 */
@@ -97,7 +99,7 @@ public class FileService {
 	 * @return true is the TV is on at the scheduler level.
 	 */
 	public boolean getTvStatusRelay() {
-		if(!propertyManager.getProductionMode()){
+		if (!propertyManager.getProductionMode()) {
 			LOG.debug("In debug mode relay is assumed on");
 			return true;
 		}

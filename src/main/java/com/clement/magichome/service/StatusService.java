@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
+import com.clement.magichome.object.Task;
 import com.clement.magichome.object.WebStatus;
 import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.scheduler.DayScheduler;
@@ -39,17 +41,22 @@ public class StatusService {
 	private WebStatus webStatus;
 
 	@Value("${scheduler.tvcheckinterval}")
-	private Float timeIncrease;
+	private Integer timeIncrease;
 	/**
 	 * Store and track the time spent on each channel
 	 */
-	private static Map<Integer, Float> secondsPerChannel = new HashMap<Integer, Float>();
+	private static Map<Integer, Integer> secondsPerChannel = new HashMap<Integer, Integer>();
+
+	private static Map<String, Integer> secondPcUsagePerUsers = new HashMap<String, Integer>();
 
 	/**
 	 * TODO The day scheduler shall not be present here.
 	 */
 	@Autowired
 	private DayScheduler dayScheduler;
+
+	@Autowired
+	private TaskService taskService;
 
 	@Autowired
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -63,7 +70,25 @@ public class StatusService {
 	@Resource
 	private FileService fileService;
 
+	public void updatePCStatusLivelyParameters() {
+		InputStream is = getStreamStanbyStateFromPC();
+		byte buffer[] = new byte[512];
+
+		try {
+			if (is == null) {
+				LOG.debug("Le service n'est pas démarré");
+				return;
+			}
+			int lenght = IOUtils.read(is, buffer);
+			String UserStr = new String(buffer, 0, lenght);
+			LOG.debug("Utilisateur connecté au PC :" + UserStr);
+		} catch (IOException e) {
+			LOG.error(e.getMessage());
+		}
+	}
+
 	/**
+	 * 
 	 * Update TV status on information where you need to be reactive. Those
 	 * parameters are.
 	 * <ul>
@@ -73,7 +98,7 @@ public class StatusService {
 	 * </ul>
 	 * This class also update the status of the relay (write function)
 	 * 
-	 * @return
+	 * @return true if the TV should be swithed off.
 	 */
 	public boolean updateTvStatusLivelyParameters() {
 		if (webStatus == null) {
@@ -96,26 +121,7 @@ public class StatusService {
 			 * In case the TV is on we retrieve the media played id (channel)
 			 */
 			if (!standbyState) {
-				Integer channelId = tvWrapper.getResult().getData().getPlayedMediaId();
-				webStatus.setPlayedMediaId(channelId);
-				if (channelId != null) {
-					List<Channel> channels = channelRepository.findByEpgId(channelId.toString());
-					if (channels != null && channels.size() > 0) {
-						Channel channel = channels.get(0);
-						webStatus.setChannelName(channel.getName());
-					}
-				}
-				if (channelId != null) {
-					Float minutes = secondsPerChannel.get(channelId);
-					if (minutes == null) {
-						minutes = 0F;
-					}
-					/**
-					 * Number of minutes is increased by 20s
-					 */
-					minutes += timeIncrease;
-					secondsPerChannel.put(channelId, minutes);
-				}
+				traceTvStatus();
 			}
 			/**
 			 * We write the standby state, so if the status is paused the
@@ -137,11 +143,69 @@ public class StatusService {
 		} else {
 			tvWrapper = new TVWrapper();
 		}
+
 		return shouldPressOnOffButton;
 	}
 
-	public Map<Integer, Float> getSecondsPerChannel() {
+	/**
+	 * This trace in DB the TV status
+	 */
+	private void traceTvStatus() {
+		Integer channelId = tvWrapper.getResult().getData().getPlayedMediaId();
+		webStatus.setPlayedMediaId(channelId);
+		if (channelId != null) {
+			List<Channel> channels = channelRepository.findByEpgId(channelId.toString());
+			if (channels != null && channels.size() > 0) {
+				Channel channel = channels.get(0);
+				webStatus.setChannelName(channel.getName());
+			}
+		}
+		if (channelId != null) {
+			Integer minutes = secondsPerChannel.get(channelId);
+			if (minutes == null) {
+				minutes = 0;
+			}
+			/**
+			 * Number of minutes is increased by 20s
+			 */
+			minutes += timeIncrease;
+			secondsPerChannel.put(channelId, minutes);
+		}
+
+	}
+
+	/**
+	 * This trace in DB the TV status
+	 */
+	private void tracePcStatus(String user) {
+		Integer secondsPc = secondsPerChannel.get(user);
+		if (secondsPc == null) {
+			secondsPc = 0;
+		}
+		/**
+		 * Number of minutes is increased by 20s
+		 */
+		secondsPc += timeIncrease;
+		secondPcUsagePerUsers.put(user, secondsPc);
+
+	}
+
+	/**
+	 * Is oa map of the channel watched during the day
+	 * 
+	 * @return
+	 */
+	public Map<Integer, Integer> getSecondsPerChannel() {
 		return secondsPerChannel;
+	}
+
+	/**
+	 * Is oa map of the channel watched during the day
+	 * 
+	 * @return
+	 */
+	public Map<String, Integer> getSecondsPerUserPc() {
+		return secondPcUsagePerUsers;
 	}
 
 	/**
@@ -162,6 +226,26 @@ public class StatusService {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/xml");
+			return connection.getInputStream();
+		} catch (IOException e) {
+			LOG.error("Could not connect to the live box");
+			return null;
+		}
+	}
+
+	/**
+	 * Contact the livebox and get the status of it.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	private InputStream getStreamStanbyStateFromPC() {
+		try {
+			String uri = "http://pcclement:81/PCStatus/Api/status";
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
 			return connection.getInputStream();
 		} catch (IOException e) {
 			LOG.error("Could not connect to the live box");
@@ -203,6 +287,33 @@ public class StatusService {
 			webStatus.setDateOfCredit(dayScheduler.getCreditTask().getExecutionDate());
 			webStatus.setAmountOfCreditInMinutes(dayScheduler.getCreditTask().getMinutes());
 		}
+
+		updateSufficientActionToWatchTv();
+	}
+
+	private boolean sufficientActionToWatchTv = false;
+
+	public boolean getSufficientActionToWatchTv() {
+		return sufficientActionToWatchTv;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private void updateSufficientActionToWatchTv() {
+		Integer nbTaskToday = 0;
+		List<Task> tasks = taskService.getTaskForToday();
+		for (Task task : tasks) {
+			if (task.getDone()) {
+				nbTaskToday++;
+			}
+		}
+		if (nbTaskToday < 3) {
+			sufficientActionToWatchTv = false;
+		}
+		;
+		sufficientActionToWatchTv = true;
 	}
 
 	/**

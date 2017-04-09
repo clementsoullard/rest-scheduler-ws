@@ -20,7 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.service.BonPointDaoImpl;
-import com.clement.magichome.service.CreditTask;
+import com.clement.magichome.service.CreditTimeForScreenTask;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.VacancesService;
 import com.clement.magichome.service.VacancesService.Profile;
@@ -65,10 +65,10 @@ public class DayScheduler {
 	 */
 
 	/** Credit task */
-	private CreditTask creditTask;
+	private CreditTimeForScreenTask creditTask;
 
 	/** */
-	private ScheduledFuture<CreditTask> scheduledFuture;
+	private ScheduledFuture<CreditTimeForScreenTask> scheduledFuture;
 
 	/** Every day we check at what time the time for tv is granted */
 	@Scheduled(cron = "0 0 * * * *")
@@ -130,12 +130,12 @@ public class DayScheduler {
 		/** We will schedule something only if something has not been started */
 		if (creditTask == null) {
 			LOG.info("Programmation de " + minutesGranted + " m  pour le " + futureDate);
-			creditTask = new CreditTask(fileService, bonPointDaoImpl, this);
+			creditTask = new CreditTimeForScreenTask(fileService, bonPointDaoImpl, this);
 			creditTask.setMinutes(minutesGranted);
 			creditTask.setMinutesModifier(minuteModifierForBonPoint);
 			creditTask.setExecutionDate(futureDate);
 
-			scheduledFuture = (ScheduledFuture<CreditTask>) taskScheduler.schedule(creditTask, futureDate);
+			scheduledFuture = (ScheduledFuture<CreditTimeForScreenTask>) taskScheduler.schedule(creditTask, futureDate);
 			fileService.writeSecondLine("Prochain crédit:" + minutesGranted + "mn " + dfLcd.format(futureDate));
 		} else {
 			creditTask.setMinutes(minutesGranted);
@@ -165,7 +165,7 @@ public class DayScheduler {
 			LOG.info("Allumage de la TV pour Cris");
 		}
 	}
-	
+
 	/**
 	 * 21 PM TV goes on if it is a school day
 	 */
@@ -189,11 +189,11 @@ public class DayScheduler {
 		}
 	}
 
-	public CreditTask getCreditTask() {
+	public CreditTimeForScreenTask getCreditTask() {
 		return creditTask;
 	}
 
-	public void setCreditTask(CreditTask creditTask) {
+	public void setCreditTask(CreditTimeForScreenTask creditTask) {
 		this.creditTask = creditTask;
 	}
 
@@ -293,6 +293,30 @@ public class DayScheduler {
 	boolean isWorkingDay() {
 		Profile profile = vacancesService.getProfile(new Date());
 		return profile == Profile.WORKDAY;
+	}
+
+	/**
+	 * 
+	 * @param originalCreditTask
+	 */
+	public void retryIn10Minutes(CreditTimeForScreenTask originalCreditTask) {
+		Calendar calendar = Calendar.getInstance();
+		/*
+		 * If we are after 20h00 then nothing is done
+		 */
+		if (calendar.get(Calendar.HOUR_OF_DAY) >= 20) {
+			LOG.debug("No sufficient action were performed canceling righ to watch the TV");
+			return;
+		}
+
+		LOG.debug("Not ok, retrying in 10 minutes");
+		creditTask = new CreditTimeForScreenTask(fileService, bonPointDaoImpl, this);
+		creditTask.setMinutes(originalCreditTask.getMinutes());
+		creditTask.setMinutesModifier(originalCreditTask.getMinutesModifier());
+		calendar.add(Calendar.MINUTE, 10);
+		Date futureDate = calendar.getTime();
+		creditTask.setExecutionDate(futureDate);
+		scheduledFuture = (ScheduledFuture<CreditTimeForScreenTask>) taskScheduler.schedule(creditTask, futureDate);
 	}
 
 }

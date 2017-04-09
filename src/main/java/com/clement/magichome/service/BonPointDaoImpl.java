@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
+import com.clement.magichome.TVSchedulerConstants;
+import com.clement.magichome.object.ActionInDaySum;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.BonPointSum;
 import com.clement.magichome.object.DatePriveDeTele;
@@ -323,6 +326,37 @@ public class BonPointDaoImpl {
 			}
 
 		}
+	}
+
+	/**
+	 * If sufficient task have been performed to have the authorisation to watch
+	 * TV.
+	 * 
+	 * @return
+	 */
+	public Boolean sufficientActionToWatchTv() {
+
+		ActionInDaySum actioninDaySum = null;
+		try {
+			Calendar calendar = Calendar.getInstance();
+			Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+			calendar.setTime(date);
+
+			Aggregation agg = Aggregation.newAggregation(
+					match(org.springframework.data.mongodb.core.query.Criteria.where("owner")
+							.is(TVSchedulerConstants.CESAR).and("done").is(true).and("date").is(date)),
+					group().count().as("total"));
+			AggregationResults<ActionInDaySum> aggregatedResult = mongoTemplate.aggregate(agg, "task",
+					ActionInDaySum.class);
+			actioninDaySum = aggregatedResult.getUniqueMappedResult();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		if (actioninDaySum == null) {
+			actioninDaySum = new ActionInDaySum();
+			actioninDaySum.setTotal(0L);
+		}
+		return actioninDaySum.getTotal() > 1;
 	}
 
 }

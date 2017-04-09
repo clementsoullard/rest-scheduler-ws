@@ -17,7 +17,9 @@ public class LogEntry {
 
 	private String channelName;
 
-	private Float seconds;
+	private String user;
+
+	private Integer seconds;
 
 	private Date fromDate;
 
@@ -26,17 +28,26 @@ public class LogEntry {
 	public LogEntry() {
 	}
 
-	public LogEntry(String metricName, Integer channel, String channelName, Float minutes, Date fromDate, Date toDate) {
+	public LogEntry(String metricName, Integer channel, String channelName, String userName, Integer seconds,
+			Date fromDate, Date toDate) {
 		this.metricName = metricName;
 		this.channel = channel;
-		this.seconds = minutes;
+		this.seconds = seconds;
 		this.fromDate = fromDate;
 		this.toDate = toDate;
-		this.channelName=channelName;
+		this.channelName = channelName;
 	}
 
 	public String getMetricName() {
 		return metricName;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getUser() {
+		return user;
 	}
 
 	public void setMetricName(String metricName) {
@@ -51,11 +62,11 @@ public class LogEntry {
 		this.channel = channel;
 	}
 
-	public Float getSeconds() {
+	public Integer getSeconds() {
 		return seconds;
 	}
 
-	public void setSeconds(Float minutes) {
+	public void setSeconds(Integer minutes) {
 		this.seconds = minutes;
 	}
 
@@ -73,6 +84,10 @@ public class LogEntry {
 
 	public void setToDate(Date toDate) {
 		this.toDate = toDate;
+	}
+
+	public String getChannelName() {
+		return channelName;
 	}
 
 	// public DBObject getDocument() {

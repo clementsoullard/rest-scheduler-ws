@@ -20,11 +20,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
+import com.clement.magichome.object.Task;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.ChannelRepository;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.StatusService;
+import com.clement.magichome.service.TaskService;
 
 @Configuration
 @EnableAutoConfiguration
@@ -51,6 +53,9 @@ public class TvCheckScheduler {
 	private BonPointDaoImpl bonPointDaoImpl;
 
 	@Resource
+	private TaskService taskService;
+
+	@Resource
 	private PropertyManager propertyManager;
 
 	private Date from = new Date();
@@ -61,33 +66,57 @@ public class TvCheckScheduler {
 	private FileService fileService;
 
 	/**
-	 * Every 15 sec. check the status of the TV and .
+	 * Every 15 sec. check the status of the TV and depending on the result it
+	 * will sitch the TV off.
 	 */
 	@Scheduled(cron = "*/${scheduler.tvcheckinterval} * * * * *")
 	public void updateTvStatus() {
-		Boolean shouldPressOnOffButton = statusService.updateTvStatusLivelyParameters();
-		if (shouldPressOnOffButton) {
+		Boolean shouldPressOnOffBasedOnTime = statusService.updateTvStatusLivelyParameters();
+		if (shouldPressOnOffBasedOnTime) {
+			LOG.debug("En dehors des horaires, on ne regarde pas la télé");
 			pressOnOffButton();
+		} else if (!statusService.getSufficientActionToWatchTv()) {
+			LOG.debug("Pas assez d'action pour regarder la télé");
+			pressOnOffButton();
+			fileService.writeStandby(true);
+		} else {
+			LOG.debug("On laisse la télé tourner");
 		}
+		statusService.updatePCStatusLivelyParameters();
+		;
+
 	}
 
 	/** *Cache map for channel name */
 	Map<Integer, String> channelNameCache = new HashMap<Integer, String>();
 
 	/**
-	 * Every 5 minutes the time spent watching a channel is stored in db.
+	 * Every 5 minutes the time spent watching a channel is stored in db adn
+	 * also the time watching PC.
 	 */
 	@Scheduled(cron = "7 */5 * * * *")
-	public void putInDb() throws IOException {
+	public void storeUsageInDb() throws IOException {
+		LOG.debug("Storing in Db");
 		to = new Date();
-		Map<Integer, Float> minutesPerChannel = statusService.getSecondsPerChannel();
-		for (Integer channel : minutesPerChannel.keySet()) {
-			Float minutes = minutesPerChannel.get(channel);
+		Map<Integer, Integer> secondsPerChannel = statusService.getSecondsPerChannel();
+		for (Integer channel : secondsPerChannel.keySet()) {
+			Integer seconds = secondsPerChannel.get(channel);
 			String channelName = getChannelName(channel);
-			logRepository.save(new LogEntry("TV", channel, channelName, minutes, from, to));
+			logRepository.save(new LogEntry("TV", channel, channelName, null, seconds, from, to));
 		}
 		from = new Date();
-		minutesPerChannel.clear();
+		secondsPerChannel.clear();
+		/**
+		 * 
+		 */
+		Map<String, Integer> secondsPc = statusService.getSecondsPerUserPc();
+		for (String userName : secondsPc.keySet()) {
+			Integer seconds = secondsPerChannel.get(userName);
+			logRepository.save(new LogEntry("PC", null, null, userName, seconds, from, to));
+		}
+		from = new Date();
+		secondsPc.clear();
+
 	}
 
 	/**
@@ -117,8 +146,10 @@ public class TvCheckScheduler {
 	 * Switch of TV, in case difference with the relay status
 	 */
 	private void pressOnOffButton() {
+		LOG.debug("Appui sur le bouton on/off");
 		if (propertyManager.getProductionMode()) {
 			try {
+
 				String uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=01&key=116&mode=0";
 				URL url = new URL(uri);
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();

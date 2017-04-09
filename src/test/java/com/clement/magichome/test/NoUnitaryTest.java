@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.service.BonPointDaoImpl;
-import com.clement.magichome.service.CreditTask;
+import com.clement.magichome.service.CreditTimeForScreenTask;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.LogRepositoryImpl;
@@ -40,7 +40,7 @@ public class NoUnitaryTest {
 	@Test
 	public void testLaunchTask() {
 		int minutesAllowed = 60;
-		CreditTask creditTask = new CreditTask(fileService, bonPointDaoImpl, dayScheduler);
+		CreditTimeForScreenTask creditTask = new CreditTimeForScreenTask(fileService, bonPointDaoImpl, dayScheduler);
 		Integer minuteModifier = bonPointDaoImpl.pointToDistribute(-minutesAllowed, minutesAllowed / 2);
 		int minutesGranted = minutesAllowed + minuteModifier;
 		creditTask.setMinutes(minutesGranted);

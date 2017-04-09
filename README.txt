@@ -29,6 +29,25 @@ scheduler.work.path=/home/clement/scheduler/work
 livebox.urlPrefix=http://192.168.1.12:8080
 production.mode=false
 
+vi conf-ext/logback.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+  <!--    <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>  -->
+  <Pattern>%d{HH:mm:ss} %msg%n</Pattern> 
+    </layout>
+  </appender>
+  
+  <logger name="com.clement" level="DEBUG"/>
+
+  <logger name="org.springframework.data.mongodb.core" level="DEBUG"/>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
 
 a2enmod proxy_ajp
 a2enmod proxy_ssl
@@ -53,6 +72,9 @@ vi /etc/sshd/sshd_config
 PasswordAuthentication no
 
 Configurer la box comme dans les PNG du repertoire doc
+
+Configurer IIS pour accepter tous les hostname
+Mettre un alias sur le DNS pcclement vers le PC
 
  
  
