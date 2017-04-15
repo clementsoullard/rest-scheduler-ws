@@ -80,8 +80,9 @@ public class StatusService {
 				return;
 			}
 			int lenght = IOUtils.read(is, buffer);
-			String UserStr = new String(buffer, 0, lenght);
-			LOG.debug("Utilisateur connecté au PC :" + UserStr);
+			String userStr = new String(buffer, 0, lenght);
+			tracePcStatus(userStr);
+			LOG.debug("Utilisateur connecté au PC :" + userStr);
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
@@ -215,8 +216,8 @@ public class StatusService {
 	 * @throws IOException
 	 */
 	private InputStream getStreamStanbyStateFromLivebox() {
+		String uri = null;
 		try {
-			String uri;
 			if (propertyManager.getProductionMode()) {
 				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
 			} else {
@@ -225,10 +226,10 @@ public class StatusService {
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/xml");
+			connection.setRequestProperty("Accept", "application/json");
 			return connection.getInputStream();
 		} catch (IOException e) {
-			LOG.error("Could not connect to the live box");
+			LOG.error("Could not connect to the livebox with uri " + uri, e);
 			return null;
 		}
 	}
@@ -240,15 +241,16 @@ public class StatusService {
 	 * @throws IOException
 	 */
 	private InputStream getStreamStanbyStateFromPC() {
+		String uri = null;
 		try {
-			String uri = "http://pcclement:81/PCStatus/Api/status";
+			uri = "http://desktop-bureau:81/PCStatus/Api/status";
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/json");
 			return connection.getInputStream();
 		} catch (IOException e) {
-			LOG.error("Could not connect to the live box");
+			LOG.debug("Could not connect to the pc at " + uri);
 			return null;
 		}
 	}

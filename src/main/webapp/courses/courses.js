@@ -93,7 +93,7 @@ angular
 							 * List the active achat to procure for the combo box
 							 */		
 							function getDistinct(){
-									 $http.get('ws-distinct-achat').
+									 $http.get('ws-suggest-achat').
 								      success(function(data) {
 								    	  $scope.potentialAchatsArray = data;
 								    	  potentialAchat=data;

@@ -34,9 +34,9 @@ public class AchatController {
 		achatService.createNew(achat);
 	}
 
-	@GetMapping(value = "/ws-distinct-achat")
-	public List<AchatDistinct> getDistinctAchat() throws Exception {
-		List<String> achatDistinctString = achatService.distinct();
+	@GetMapping(value = "/ws-suggest-achat")
+	public List<AchatDistinct> getSuggestAchat() throws Exception {
+		List<String> achatDistinctString = achatService.distinctAchats();
 		List<AchatDistinct> achatDistincts = new ArrayList<AchatDistinct>();
 		int i = 0;
 		for (String acString : achatDistinctString) {

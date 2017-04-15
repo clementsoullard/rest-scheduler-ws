@@ -1,8 +1,12 @@
 package com.clement.magichome.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -91,8 +95,17 @@ public class AchatService {
 	 * 
 	 * @param task
 	 */
-	public List<String> distinct() {
+	public List<String> distinctAchats() {
 		List<String> distinctName = mongoTemplate.getCollection("achat").distinct("name");
-		return distinctName;
+		Set<String> distinctNameWithCapitalCase = new HashSet<String>();
+		for (String name : distinctName) {
+			if (name.length() > 0) {
+				String firstLetter = name.substring(0, 1).toUpperCase();
+				String wordRemaining = name.substring(1);
+				String newName = firstLetter + wordRemaining;
+				distinctNameWithCapitalCase.add(newName);
+			}
+		}
+		return new ArrayList<>(distinctNameWithCapitalCase);
 	}
 }

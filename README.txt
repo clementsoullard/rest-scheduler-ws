@@ -74,7 +74,10 @@ PasswordAuthentication no
 Configurer la box comme dans les PNG du repertoire doc
 
 Configurer IIS pour accepter tous les hostname
-Mettre un alias sur le DNS pcclement vers le PC
+(Voir screen shot)
+Ouvrir le firewall windows pour accepter les connexion sur le port 81
+
+
 
  
  
