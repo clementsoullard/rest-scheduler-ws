@@ -20,7 +20,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.LogEntry;
-import com.clement.magichome.object.Task;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.ChannelRepository;
 import com.clement.magichome.service.FileService;
@@ -32,7 +31,7 @@ import com.clement.magichome.service.TaskService;
 @EnableAutoConfiguration
 @EnableScheduling
 /**
- * This class credit some minutes for the TV.
+ * This class manages all preriodic tasks for a tv.
  * 
  * @author Clément
  *
@@ -75,10 +74,6 @@ public class TvCheckScheduler {
 		if (shouldPressOnOffBasedOnTime) {
 			LOG.debug("En dehors des horaires, on ne regarde pas la télé");
 			pressOnOffButton();
-		} else if (!statusService.getSufficientActionToWatchTv()) {
-			LOG.debug("Pas assez d'action pour regarder la télé");
-			pressOnOffButton();
-			fileService.writeStandby(true);
 		} else {
 			LOG.debug("On laisse la télé tourner");
 		}

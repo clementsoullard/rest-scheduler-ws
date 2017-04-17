@@ -152,7 +152,7 @@ public class DayScheduler {
 	 */
 	@Scheduled(cron = "0 0 2 * * *")
 	public void switchOffInNight() throws IOException {
-		fileService.writeCountDown(SCHEDULER_OFF);
+		fileService.writeCredit(SCHEDULER_OFF);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class DayScheduler {
 	@Scheduled(cron = "0 0 10 * * *")
 	public void switchOnForCris() throws IOException {
 		if (isWorkingDay()) {
-			fileService.writeCountDown(SCHEDULER_ON);
+			fileService.writeCredit(SCHEDULER_ON);
 			LOG.info("Allumage de la TV pour Cris");
 		}
 	}
@@ -172,7 +172,7 @@ public class DayScheduler {
 	@Scheduled(cron = "0 0 21 * * *")
 	public void switchOnInNight() throws IOException {
 		if (isWorkingDay()) {
-			fileService.writeCountDown(SCHEDULER_ON);
+			fileService.writeCredit(SCHEDULER_ON);
 			LOG.info("Allumage de la TV pour Cris");
 		}
 	}
@@ -185,7 +185,7 @@ public class DayScheduler {
 	public void switchOffForCris() throws IOException {
 		if (isWorkingDay()) {
 			LOG.info("Extinction de la TV pour le retour de César");
-			fileService.writeCountDown(SCHEDULER_OFF);
+			fileService.writeCredit(SCHEDULER_OFF);
 		}
 	}
 
@@ -305,11 +305,12 @@ public class DayScheduler {
 		 * If we are after 20h00 then nothing is done
 		 */
 		if (calendar.get(Calendar.HOUR_OF_DAY) >= 20) {
-			LOG.debug("No sufficient action were performed canceling righ to watch the TV");
+			LOG.info(
+					"No sufficient action were performed canceling righ to watch the TV for thqt dqym ze stop retrying");
 			return;
 		}
 
-		LOG.debug("Not ok, retrying in 10 minutes");
+		LOG.info("Not ok to grqnt rights on tv, retrying in 10 minutes");
 		creditTask = new CreditTimeForScreenTask(fileService, bonPointDaoImpl, this);
 		creditTask.setMinutes(originalCreditTask.getMinutes());
 		creditTask.setMinutesModifier(originalCreditTask.getMinutesModifier());

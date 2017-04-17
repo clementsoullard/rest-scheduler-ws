@@ -30,7 +30,7 @@ public class FileService {
 	 * @param value
 	 * @return true
 	 */
-	public boolean writeCountDown(int value) {
+	public boolean writeCredit(int value) {
 		File file = new File(propertyManager.getPathCountDown());
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdir();

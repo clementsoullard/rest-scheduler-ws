@@ -64,7 +64,7 @@ public class TVSchedulerController {
 	public CreditResult credit(@RequestParam(value = "value", defaultValue = "90") Integer value) throws Exception {
 		WebStatus tvStatus = statusService.getStatus();
 		CreditResult creditResult = new CreditResult("Ok");
-		if (fileService.writeCountDown(value)) {
+		if (fileService.writeCredit(value)) {
 			// The value is written in the file, we assume that it is properly
 			// propagated the the C schedulers
 			tvStatus.setRemainingSecond(value);

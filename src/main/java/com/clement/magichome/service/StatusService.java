@@ -229,7 +229,7 @@ public class StatusService {
 			connection.setRequestProperty("Accept", "application/json");
 			return connection.getInputStream();
 		} catch (IOException e) {
-			LOG.error("Could not connect to the livebox with uri " + uri, e);
+			LOG.error("Could not connect to the livebox with uri " + uri);
 			return null;
 		}
 	}
