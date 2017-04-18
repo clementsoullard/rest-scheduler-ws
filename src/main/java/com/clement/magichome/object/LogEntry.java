@@ -36,6 +36,7 @@ public class LogEntry {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.channelName = channelName;
+		this.user = userName;
 	}
 
 	public String getMetricName() {
@@ -90,13 +91,4 @@ public class LogEntry {
 		return channelName;
 	}
 
-	// public DBObject getDocument() {
-	// DBObject dbObject = new BasicDBObject();
-	// dbObject.put("metricName", metricName);
-	// dbObject.put("channel", channel);
-	// dbObject.put("minutes", minutes);
-	// dbObject.put("from", fromDate);
-	// dbObject.put("to", toDate);
-	// return dbObject;
-	// }
 }

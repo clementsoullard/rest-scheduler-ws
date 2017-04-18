@@ -6,7 +6,8 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.television',
   'myApp.vacances',
-   'myApp.view2',
+  'myApp.conso-tele',
+  'myApp.conso-computer',
   'myApp.version',
   'ng-fusioncharts',
   'ngMaterial'

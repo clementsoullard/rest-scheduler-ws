@@ -106,7 +106,7 @@ public class TvCheckScheduler {
 		 */
 		Map<String, Integer> secondsPc = statusService.getSecondsPerUserPc();
 		for (String userName : secondsPc.keySet()) {
-			Integer seconds = secondsPerChannel.get(userName);
+			Integer seconds = secondsPc.get(userName);
 			logRepository.save(new LogEntry("PC", null, null, userName, seconds, from, to));
 		}
 		from = new Date();
@@ -129,7 +129,7 @@ public class TvCheckScheduler {
 				channelName = channels.get(0).getName();
 				LOG.debug("Chanine name " + channelName);
 			} else {
-				channelName = "Chaine inconnue";
+				channelName = "Chaine EPG:" + channelId.toString();
 				LOG.debug("Chaine inconnue " + channelName);
 			}
 			channelNameCache.put(channelId, channelName);

@@ -8,9 +8,9 @@ package com.clement.magichome.dto.graph;
  */
 public class JSChart {
 
-	private String caption = "Consommation Télé par chaine (h)";
+	private String caption;
 
-	private String subCaption = "Depuis le début";
+	private String subCaption;
 
 	public String getCaption() {
 		return caption;

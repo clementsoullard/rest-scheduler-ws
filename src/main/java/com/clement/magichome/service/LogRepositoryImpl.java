@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.dto.SecondPerChannel;
+import com.clement.magichome.dto.SecondPerUserOrdi;
 import com.clement.magichome.dto.graph.Data;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.MinutesToday;
@@ -49,6 +50,36 @@ public class LogRepositoryImpl {
 					datas.add(data);
 					LOG.debug(
 							minutesPerChannel.getChannelName().toString() + " " + minutesPerChannel.getTotalSeconds());
+				}
+			}
+			return jsChart;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Wrapper getHoursPerUserComputer() {
+		try {
+			Wrapper jsChart = new Wrapper();
+			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").in("PC")),
+					project("user", "seconds"), group("user").sum("seconds").as("totalSeconds"));
+			LOG.debug("Construction de la requete effectuée");
+			AggregationResults<SecondPerUserOrdi> secondsPerUserOrdiAgg = mongoTemplate.aggregate(aggregation, "log",
+					SecondPerUserOrdi.class);
+			LOG.debug("Requete effectue");
+			List<Data> datas = jsChart.getData();
+			for (SecondPerUserOrdi secondsPerUserOrdi : secondsPerUserOrdiAgg) {
+				if (secondsPerUserOrdi.getUser() != null) {
+					Data data = new Data();
+					data.setLabel(secondsPerUserOrdi.getUser());
+					data.setValue(secondsPerUserOrdi.getTotalhours());
+					datas.add(data);
+					LOG.debug(secondsPerUserOrdi.getUser().toString() + " " + secondsPerUserOrdi.getTotalSeconds());
 				}
 			}
 			return jsChart;

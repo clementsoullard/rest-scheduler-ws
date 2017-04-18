@@ -300,21 +300,23 @@ public class StatusService {
 	}
 
 	/**
+	 * Update the status if there are sufficient actions today to watch TV.
 	 * 
 	 * @return
 	 */
 	private void updateSufficientActionToWatchTv() {
 		Integer nbTaskToday = 0;
 		List<Task> tasks = taskService.getTaskForToday();
-		for (Task task : tasks) {
-			if (task.getDone()) {
-				nbTaskToday++;
+		if (tasks != null) {
+			for (Task task : tasks) {
+				if (task.getDone() != null && task.getDone()) {
+					nbTaskToday++;
+				}
+			}
+			if (nbTaskToday < 3) {
+				sufficientActionToWatchTv = false;
 			}
 		}
-		if (nbTaskToday < 3) {
-			sufficientActionToWatchTv = false;
-		}
-		;
 		sufficientActionToWatchTv = true;
 	}
 

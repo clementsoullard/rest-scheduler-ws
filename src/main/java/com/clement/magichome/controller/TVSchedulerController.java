@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clement.magichome.dto.CreditResult;
 import com.clement.magichome.dto.Punition;
 import com.clement.magichome.dto.PunitionResult;
+import com.clement.magichome.dto.graph.JSChart;
 import com.clement.magichome.dto.graph.Wrapper;
 import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.Vacances;
@@ -85,10 +86,36 @@ public class TVSchedulerController {
 		return tvStatus;
 	}
 
+	/**
+	 * Display the most watched channels
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/chart-channel")
+	public Wrapper channelChartAllTime() throws Exception {
+		Wrapper wrapper = logRepositoryImpl.getHoursPerChannel();
+		JSChart jsChart = new JSChart();
+		jsChart.setCaption("Consommation Télé par chaine (h)");
+		jsChart.setSubCaption("Depuis le début");
+		wrapper.setJSChart(jsChart);
+		return wrapper;
+	}
+
+	/**
+	 * Display the usage per channel
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/chart-computer")
 	public Wrapper chartChannelChart() throws Exception {
-		Wrapper jsChart = logRepositoryImpl.getHoursPerChannel();
-		return jsChart;
+		Wrapper wrapper = logRepositoryImpl.getHoursPerUserComputer();
+		JSChart jsChart = new JSChart();
+		jsChart.setCaption("Consommation d'ordinateur par user (h)");
+		jsChart.setSubCaption("Depuis le début");
+		wrapper.setJSChart(jsChart);
+		return wrapper;
 	}
 
 	@RequestMapping(value = "/punition", method = RequestMethod.POST)
@@ -105,9 +132,14 @@ public class TVSchedulerController {
 		return punitionResult;
 	}
 
+	/**
+	 * Service to create holidays
+	 * 
+	 * @param vacances
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/create-vacances", method = RequestMethod.POST)
-
-	public void creatVacances(@RequestBody Vacances vacances) throws Exception {
+	public void createVacances(@RequestBody Vacances vacances) throws Exception {
 		if (!vacancesService.checkVacanceNotExisting(vacances)) {
 			vacancesRepository.save(vacances);
 		} else {
