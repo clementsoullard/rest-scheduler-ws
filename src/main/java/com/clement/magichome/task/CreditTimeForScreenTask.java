@@ -1,4 +1,4 @@
-package com.clement.magichome.service;
+package com.clement.magichome.task;
 
 import java.util.Date;
 
@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.clement.magichome.scheduler.DayScheduler;
+import com.clement.magichome.service.BonPointDaoImpl;
+import com.clement.magichome.service.FileService;
 
 /**
  * This will credit

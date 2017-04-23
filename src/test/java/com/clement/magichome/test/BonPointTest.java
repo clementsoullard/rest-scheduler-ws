@@ -16,7 +16,7 @@ import com.clement.magichome.object.BonPoint;
 import com.clement.magichome.object.BonPointSum;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.BonPointRepository;
-import com.clement.magichome.service.CreditTimeForScreenTask;
+import com.clement.magichome.task.CreditTimeForScreenTask;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest

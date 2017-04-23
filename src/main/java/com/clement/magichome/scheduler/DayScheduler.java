@@ -23,10 +23,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.service.BonPointDaoImpl;
-import com.clement.magichome.service.CreditTimeForScreenTask;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.VacancesService;
 import com.clement.magichome.service.VacancesService.Profile;
+import com.clement.magichome.task.AllowDenyUserTask;
+import com.clement.magichome.task.CreditTimeForScreenTask;
 
 @Configuration
 @EnableScheduling
@@ -76,6 +77,8 @@ public class DayScheduler {
 
 	/** */
 	private ScheduledFuture<CreditTimeForScreenTask> scheduledFuture;
+	/** */
+	private ScheduledFuture<AllowDenyUserTask> scheduledFutureAllowCesar;
 
 	/** Every day we check at what time the time for tv is granted */
 	@Scheduled(cron = "0 0 * * * *")
@@ -178,34 +181,26 @@ public class DayScheduler {
 	 */
 	@Scheduled(cron = "0 0 14 * * SAT")
 	private void allowCesar() {
-		LOG.debug("Autorisation de Cesar");
-		try {
-			String uri = propertyManager.getPcUrlPrefix() + "http://localhost:81/PCStatus/api/User/cesar/true";
-			URL url = new URL(uri);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/xml");
-			connection.getInputStream().read();
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+		if (scheduledFutureAllowCesar != null) {
+			scheduledFutureAllowCesar.cancel(false);
 		}
+		LOG.debug("Autorisation de Cesar");
+		AllowDenyUserTask allowDenyUserTask = new AllowDenyUserTask(this, propertyManager, true, "cesar");
+		allowDenyUserTask.run();
 	}
+
 	/**
 	 * Allow Cesar only on weekend
 	 */
-	@Scheduled(cron = "0 0 17 * * SUN")
+	@Scheduled(cron = "0 */2 * * * SUN")
 	private void denyPCCesar() {
-		LOG.debug("Fin de l4qutorisqtion d'utilisation  de Cesar");
-		try {
-			String uri = propertyManager.getPcUrlPrefix() + "http://localhost:81/PCStatus/api/User/cesar/false";
-			URL url = new URL(uri);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/xml");
-			connection.getInputStream().read();
-		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+		if (scheduledFutureAllowCesar != null) {
+			scheduledFutureAllowCesar.cancel(false);
 		}
+		LOG.debug("Fin de l'autorisation d'utilisation  de Cesar");
+		AllowDenyUserTask allowDenyUserTask = new AllowDenyUserTask(this, propertyManager, false, "cesar");
+		allowDenyUserTask.run();
+
 	}
 
 	/**
@@ -361,4 +356,16 @@ public class DayScheduler {
 		scheduledFuture = (ScheduledFuture<CreditTimeForScreenTask>) taskScheduler.schedule(creditTask, futureDate);
 	}
 
+	/**
+	 * 
+	 * @param originalCreditTask
+	 */
+	public void retryIn10Minutes(AllowDenyUserTask allowTask) {
+		Calendar calendar = Calendar.getInstance();
+		LOG.debug("PC was not available to trigger allowing user");
+		calendar.add(Calendar.MINUTE, 10);
+		Date futureDate = calendar.getTime();
+		allowTask.setExecutionDate(futureDate);
+		scheduledFutureAllowCesar = (ScheduledFuture<AllowDenyUserTask>) taskScheduler.schedule(allowTask, futureDate);
+	}
 }

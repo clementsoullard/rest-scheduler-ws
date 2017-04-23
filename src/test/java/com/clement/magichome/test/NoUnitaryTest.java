@@ -13,10 +13,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.service.BonPointDaoImpl;
-import com.clement.magichome.service.CreditTimeForScreenTask;
 import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.LogRepositoryImpl;
+import com.clement.magichome.task.CreditTimeForScreenTask;
 
 import junit.framework.Assert;
 
