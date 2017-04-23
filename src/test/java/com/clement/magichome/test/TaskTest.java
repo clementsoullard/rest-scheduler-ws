@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.clement.magichome.TVSchedulerConstants;
 import com.clement.magichome.service.TaskService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -18,7 +19,7 @@ public class TaskTest {
 
 	@Test
 	public void testTaskForToday() {
-		taskService.getTaskForToday();
+		taskService.getTaskForToday(TVSchedulerConstants.CESAR);
 	}
 
 }

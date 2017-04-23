@@ -1,15 +1,15 @@
 ﻿'use strict';
 
-angular.module('myApp.tasks', ['ngRoute'])
+angular.module('myApp.tasksHome', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/tasks', {
-    templateUrl: 'tasks/tasks.html',
-    controller: 'tasksCtrl'
+  $routeProvider.when('/tasksHome', {
+    templateUrl: 'tasks/tasksHome.html',
+    controller: 'tasksHomeCtrl'
   });
 }])
 
-.controller('tasksCtrl',  ['$scope','$http', '$mdDialog', '$mdMedia','$interval', function($scope,$http, $mdDialog, $mdMedia,$interval) {
+.controller('tasksHomeCtrl',  ['$scope','$http', '$mdDialog', '$mdMedia','$interval', function($scope,$http, $mdDialog, $mdMedia,$interval) {
 
 
 	 
@@ -38,7 +38,7 @@ angular.module('myApp.tasks', ['ngRoute'])
 			        success(function(data) {
 			     	  	$scope.message='Thanks for applying. You have been properly registred. You can also register husband/wife and children after closing this window.';
 			       	  	$scope.error=false;
-			       	  	$scope.task={};
+			       	  	$scope.task={expireAtTheEndOfTheDay: false, owner:'Home'};
 			            list();
 			        }).
 					error(function(data) {
@@ -51,7 +51,7 @@ angular.module('myApp.tasks', ['ngRoute'])
 	 * List the tasks
 	 */		
 		 function list(){
-			 $http.get('today-tasks').
+			 $http.get('today-tasks-home').
 		      success(function(data) {
 		        	console.log(JSON.stringify(data._embedded));
 		            $scope.tasks = data;
@@ -66,7 +66,11 @@ angular.module('myApp.tasks', ['ngRoute'])
 				list();
 			});
 		}
-			
-list(); 
+		
+		/**
+		 * Functions called at loadding
+		 */
+	  	$scope.task={expireAtTheEndOfTheDay: false, owner:'Home'};
+	  	list(); 
 	
 }]);

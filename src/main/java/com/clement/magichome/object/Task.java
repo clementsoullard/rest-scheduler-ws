@@ -9,12 +9,13 @@ public class Task {
 	@Id
 	private String id;
 
-	public Task(String taskName, Boolean done, Date date) {
+	public Task(String taskName, Boolean done, Date date, String owner, Boolean expireAtTheEndOfTheDay) {
 		super();
 		this.taskName = taskName;
 		this.done = done;
 		this.date = date;
-		this.owner = "César";
+		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
+		this.owner = owner;
 	}
 
 	public Task() {
@@ -25,6 +26,9 @@ public class Task {
 	private String owner;
 
 	private Boolean done;
+
+	/** True if a task is cancelled once the day is over */
+	private Boolean expireAtTheEndOfTheDay;
 
 	private Boolean open;
 
@@ -84,6 +88,14 @@ public class Task {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	public Boolean getExpireAtTheEndOfTheDay() {
+		return expireAtTheEndOfTheDay;
+	}
+
+	public void setExpireAtTheEndOfTheDay(Boolean expireAtTheEndOfTheDay) {
+		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
 	}
 
 }

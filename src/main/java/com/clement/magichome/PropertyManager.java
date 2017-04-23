@@ -11,6 +11,9 @@ public class PropertyManager {
 	@Value("${livebox.urlPrefix}")
 	String liveboxUrlPrefix;
 
+	@Value("${pc.urlPrefix}")
+	String pcUrlPrefix;
+
 	@Value("${production.mode}")
 	Boolean productionMode;
 
@@ -40,6 +43,10 @@ public class PropertyManager {
 	
 	public Boolean getProductionMode() {
 		return productionMode;
+	}
+	
+	public String getPcUrlPrefix() {
+		return pcUrlPrefix;
 	}
 	
 	

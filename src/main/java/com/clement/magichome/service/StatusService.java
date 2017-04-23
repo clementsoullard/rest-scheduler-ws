@@ -243,7 +243,7 @@ public class StatusService {
 	private InputStream getStreamStanbyStateFromPC() {
 		String uri = null;
 		try {
-			uri = "http://desktop-bureau:81/PCStatus/Api/status";
+			uri = propertyManager.getPcUrlPrefix() + "/Api/status";
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
@@ -306,7 +306,7 @@ public class StatusService {
 	 */
 	private void updateSufficientActionToWatchTv() {
 		Integer nbTaskToday = 0;
-		List<Task> tasks = taskService.getTaskForToday();
+		List<Task> tasks = taskService.getCesarTasksExpiringToday();
 		if (tasks != null) {
 			for (Task task : tasks) {
 				if (task.getDone() != null && task.getDone()) {

@@ -39,7 +39,7 @@ public class CreditTimeForScreenTask implements Runnable {
 
 	@Override
 	public void run() {
-		LOG.info("Credit de " + minutesGranted + " initialement programmé le " + executionDate);
+		LOG.debug("Credit de " + minutesGranted + " initialement programmé le " + executionDate);
 		if (bonPointDaoImpl.sufficientActionToWatchTv()) {
 			fileService.writeCredit(minutesGranted * 60);
 			bonPointDaoImpl.compensateBonEtMauvaisPoint();

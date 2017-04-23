@@ -1,6 +1,8 @@
 package com.clement.magichome.scheduler;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -18,6 +20,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.DatePriveDeTele;
 import com.clement.magichome.service.BonPointDaoImpl;
 import com.clement.magichome.service.CreditTimeForScreenTask;
@@ -37,15 +40,19 @@ import com.clement.magichome.service.VacancesService.Profile;
 public class DayScheduler {
 
 	private static final int SCHEDULER_OFF = -1;
+
 	private static final int SCHEDULER_ON = -2;
 
 	static final Logger LOG = LoggerFactory.getLogger(DayScheduler.class);
 
 	public final static int TIME_IS_PASSED = SCHEDULER_OFF;
 
-	DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
+	private DateFormat df = new SimpleDateFormat("EEEEE d MMM", Locale.FRENCH);
 
-	DateFormat dfLcd = new SimpleDateFormat("EEE d HH:mm", Locale.FRENCH);
+	private DateFormat dfLcd = new SimpleDateFormat("EEE d HH:mm", Locale.FRENCH);
+
+	@Resource
+	private PropertyManager propertyManager;
 
 	@Resource
 	private BonPointDaoImpl bonPointDaoImpl;
@@ -167,7 +174,42 @@ public class DayScheduler {
 	}
 
 	/**
-	 * 21 PM TV goes on if it is a school day
+	 * Allow Cesar only on weekend
+	 */
+	@Scheduled(cron = "0 0 14 * * SAT")
+	private void allowCesar() {
+		LOG.debug("Autorisation de Cesar");
+		try {
+			String uri = propertyManager.getPcUrlPrefix() + "http://localhost:81/PCStatus/api/User/cesar/true";
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/xml");
+			connection.getInputStream().read();
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
+	}
+	/**
+	 * Allow Cesar only on weekend
+	 */
+	@Scheduled(cron = "0 0 17 * * SUN")
+	private void denyPCCesar() {
+		LOG.debug("Fin de l4qutorisqtion d'utilisation  de Cesar");
+		try {
+			String uri = propertyManager.getPcUrlPrefix() + "http://localhost:81/PCStatus/api/User/cesar/false";
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/xml");
+			connection.getInputStream().read();
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 21 PM TV goes on if it is a working day
 	 */
 	@Scheduled(cron = "0 0 21 * * *")
 	public void switchOnInNight() throws IOException {
@@ -178,8 +220,7 @@ public class DayScheduler {
 	}
 
 	/**
-	 * Every night at 2 o'clock the switch goes to Off, no matter what happened
-	 * before
+	 * Every working day tv goes off at 5PM, no matter what happened before
 	 */
 	@Scheduled(cron = "0 0 17 * * *")
 	public void switchOffForCris() throws IOException {
@@ -305,12 +346,12 @@ public class DayScheduler {
 		 * If we are after 20h00 then nothing is done
 		 */
 		if (calendar.get(Calendar.HOUR_OF_DAY) >= 20) {
-			LOG.info(
-					"No sufficient action were performed canceling righ to watch the TV for thqt dqym ze stop retrying");
+			LOG.debug(
+					"No sufficient action were performed canceling right to watch the TV for that day cancelling retrying");
 			return;
 		}
 
-		LOG.info("Not ok to grqnt rights on tv, retrying in 10 minutes");
+		LOG.debug("Not sufficient actions to grant rights on tv, retrying in 10 minutes");
 		creditTask = new CreditTimeForScreenTask(fileService, bonPointDaoImpl, this);
 		creditTask.setMinutes(originalCreditTask.getMinutes());
 		creditTask.setMinutesModifier(originalCreditTask.getMinutesModifier());

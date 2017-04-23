@@ -4,7 +4,8 @@
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
   'ngRoute',
-  'myApp.television',
+  'myApp.tasks',
+  'myApp.tasksHome',
   'myApp.version',
   'ng-fusioncharts',
   'ngMaterial'
