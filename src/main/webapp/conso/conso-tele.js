@@ -11,13 +11,20 @@ angular.module('myApp.conso-tele', ['ngRoute'])
 
 .controller('ConsoTeleCtrl', ['$scope','$http', function($scope,$http) {
 
+function load(){	
 $scope.myDataSource = {};
-  $http.get('/tvscheduler/chart-channel').
+console.log("Chagement de la datasource "+$scope.typeGraph);
+if($scope.typeGraph)
+  $http.get('/tvscheduler/'+$scope.typeGraph).
         success(function(data) {
 			console.log("Succes");
 			$scope.myDataSource = data;
        	});
+}
 
+load();
+
+$scope.reload = function(){load();}
  
 }])
 ;

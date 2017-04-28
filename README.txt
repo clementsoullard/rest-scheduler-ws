@@ -77,6 +77,11 @@ Configurer IIS pour accepter tous les hostname
 (Voir screen shot)
 Ouvrir le firewall windows pour accepter les connexion sur le port 81
 
+Ajouter le DNS pour le decodeur dans la configuration de la box
+decodeur 192.168.1.12
+
+ ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
+
 
 
  

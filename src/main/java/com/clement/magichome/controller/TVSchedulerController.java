@@ -103,6 +103,22 @@ public class TVSchedulerController {
 	}
 
 	/**
+	 * Display the most watched channels
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/hour-consumption")
+	public Wrapper hourConsumption() throws Exception {
+		Wrapper wrapper = logRepositoryImpl.getConsumptionPerHours();
+		JSChart jsChart = new JSChart();
+		jsChart.setCaption("Consommation Télé par heure du jour");
+		jsChart.setSubCaption("Depuis le début");
+		wrapper.setJSChart(jsChart);
+		return wrapper;
+	}
+
+	/**
 	 * Display the usage per channel
 	 * 
 	 * @return

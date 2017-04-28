@@ -1,4 +1,11 @@
 <script type="text/javascript" src="../js/jscharts.js"></script>
+<div class="container">
+ <div class="row">
+  <select ng-model="typeGraph" ng-change="reload()">
+  <option value="hour-consumption">Par Heure</option>
+  <option value="chart-channel">par chaine</option>
+</select> 
+ </div>
  <div class="row">
  <div fusioncharts
        width="600"
@@ -7,3 +14,4 @@
        dataSource="{{myDataSource}}" class="text-center">
     </div>
 </div>	
+</div>

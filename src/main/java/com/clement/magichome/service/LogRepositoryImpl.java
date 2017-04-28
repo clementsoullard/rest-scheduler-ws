@@ -7,7 +7,9 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.dto.SecondPerChannel;
+import com.clement.magichome.dto.ConsumptionPerHourOfDay;
 import com.clement.magichome.dto.SecondPerUserOrdi;
 import com.clement.magichome.dto.graph.Data;
 import com.clement.magichome.dto.graph.Wrapper;
@@ -32,6 +35,11 @@ public class LogRepositoryImpl {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
+	/**
+	 * The number of hours per channel.
+	 * 
+	 * @return
+	 */
 	public Wrapper getHoursPerChannel() {
 		try {
 			Wrapper jsChart = new Wrapper();
@@ -52,6 +60,47 @@ public class LogRepositoryImpl {
 							minutesPerChannel.getChannelName().toString() + " " + minutesPerChannel.getTotalSeconds());
 				}
 			}
+			return jsChart;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * The consumption per hour.
+	 * 
+	 * @return
+	 */
+	public Wrapper getConsumptionPerHours() {
+		try {
+			Wrapper jsChart = new Wrapper();
+			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").is("TV")),
+					project("seconds").and("fromDate").project("hour").as("hourInday"),
+					group("hourInday").sum("seconds").as("totalSeconds"));
+			LOG.debug("Construction de la requete effectuée");
+			AggregationResults<ConsumptionPerHourOfDay> consumptionPerHourInDayAgg = mongoTemplate
+					.aggregate(aggregation, "log", ConsumptionPerHourOfDay.class);
+			LOG.debug("Requete effectue");
+			List<Data> datas = jsChart.getData();
+			Map<Integer, Float> mapHours = new HashMap<Integer, Float>();
+
+			for (ConsumptionPerHourOfDay consumptionPerHour : consumptionPerHourInDayAgg) {
+				mapHours.put(consumptionPerHour.getHour(), consumptionPerHour.getTotalhours());
+			}
+
+			for (Integer hour = 0; hour < 24; hour++) {
+				Float qty = mapHours.get(hour);
+				if (qty == null) {
+					qty = 0F;
+				}
+				Data data = new Data();
+				data.setLabel(hour.toString());
+				data.setValue(qty);
+				datas.add(data);
+				LOG.debug(hour.toString() + " " + qty);
+			}
+
 			return jsChart;
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

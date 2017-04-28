@@ -56,15 +56,21 @@ public class NoUnitaryTest {
 
 	@Test
 	public void testMaxDate() {
-		DatePriveDeTele dpt=bonPointDaoImpl.maxDate();
-		org.junit.Assert.assertEquals(dpt.getMaxDate(),new Date());
+		DatePriveDeTele dpt = bonPointDaoImpl.maxDate();
+		org.junit.Assert.assertEquals(dpt.getMaxDate(), new Date());
 
 	}
+
 	@Test
 	public void testMinutesToday() {
-		Long dpt=logRepository.getMinutesToday();
-		org.junit.Assert.assertEquals(dpt,new Date());
+		Long dpt = logRepository.getMinutesToday();
+		org.junit.Assert.assertEquals(dpt, new Date());
 
+	}
+
+	@Test
+	public void testGroupByHour() {
+		logRepository.getConsumptionPerHours();
 	}
 
 }

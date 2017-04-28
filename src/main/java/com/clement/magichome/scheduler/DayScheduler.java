@@ -192,7 +192,7 @@ public class DayScheduler {
 	/**
 	 * Allow Cesar only on weekend
 	 */
-	@Scheduled(cron = "0 */2 * * * SUN")
+	@Scheduled(cron = "0 0 17 * * SUN")
 	private void denyPCCesar() {
 		if (scheduledFutureAllowCesar != null) {
 			scheduledFutureAllowCesar.cancel(false);
