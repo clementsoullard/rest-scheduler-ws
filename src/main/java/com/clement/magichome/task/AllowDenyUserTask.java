@@ -64,7 +64,7 @@ public class AllowDenyUserTask implements Runnable {
 			LOG.info("Echec2  de l'activation de César");
 			LOG.error(e.getMessage(), e);
 		}
-		if (!success) {
+		if (!success&&dayScheduler!=null) {
 			dayScheduler.retryIn10Minutes(this);
 		}
 

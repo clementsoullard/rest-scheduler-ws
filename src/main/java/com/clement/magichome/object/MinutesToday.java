@@ -2,14 +2,14 @@ package com.clement.magichome.object;
 
 public class MinutesToday {
 
-	Long minutes;
+	Long seconds;
 
-	public Long getMinutes() {
-		return minutes;
+	public Integer getSeconds() {
+		return seconds.intValue();
 	}
 
-	public void setMinutes(Long minutes) {
-		this.minutes = minutes;
+	public void setSeconds(Long minutes) {
+		this.seconds = minutes;
 	}
 
 }

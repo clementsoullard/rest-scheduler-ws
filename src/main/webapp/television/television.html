@@ -17,7 +17,7 @@
 	</div>
 	<div class="panel panel-default boxing-panel">
 		<div class="panel-heading">
-			<h3 class="panel-title">Contrôle</h3>
+			<h3 class="panel-title">Contrôle Télé</h3>
 		</div>
 		<div class="panel-body">
 			<div class="row">
@@ -26,7 +26,8 @@
 						class="btn btn-success col-sm-12">ON</button>
 				</span> <span class="col-sm-3"><button
 						ng-click="showAdvancedControlTV($event,-1)"
-						class="btn btn-danger col-sm-12">OFF</button> </span> <span class="col-sm-3">
+						class="btn btn-danger col-sm-12">OFF</button> </span> <span
+					class="col-sm-3">
 					<button ng-click="showAdvancedControlTV($event,1800)"
 						class="btn btn-info   col-sm-12">30mn</button>
 				</span> <span class="col-sm-3">
@@ -39,24 +40,44 @@
 
 	<div class="panel panel-default boxing-panel">
 		<div class="panel-heading">
+			<h3 class="panel-title">Contrôle PC</h3>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<span class="col-sm-3">
+					<button ng-click="changeUserConfirmation(false)"
+						class="btn btn-danger col-sm-12">Désactiver</button>
+				</span> <span class="col-sm-3">
+					<button ng-click="changeUserConfirmation(true)"
+						class="btn btn-success   col-sm-12">Activer</button>
+				</span> 
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-default boxing-panel">
+		<div class="panel-heading">
 			<h3 class="panel-title">Punition/récompense</h3>
 		</div>
 		<div class="panel-body">
 			<div class="row">
-			 <span class="col-sm-4">
-				<button
-					ng-click="showAdvancedConfirmPunition($event,-20,'desobeissance')"
-					class="btn btn-danger col-sm-12">Mauvais point</button>
-			</span> <span class="col-sm-4">	<button
-					ng-click="showAdvancedConfirmPunition($event,-1000,'privetele')"
-					class="btn btn-danger col-sm-12">Privé de télé</button>
-			</span> <span class="col-sm-4">	<button
-					ng-click="showAdvancedConfirmPunition($event,20,'recompense')"
-					class="btn btn-success col-sm-12">Obéit</button>
-			</span>
+				<span class="col-sm-4">
+					<button
+						ng-click="showAdvancedConfirmPunition($event,-20,'desobeissance')"
+						class="btn btn-danger col-sm-12">Mauvais point</button>
+				</span> <span class="col-sm-4">
+					<button
+						ng-click="showAdvancedConfirmPunition($event,-1000,'privetele')"
+						class="btn btn-danger col-sm-12">Privé de télé</button>
+				</span> <span class="col-sm-4">
+					<button
+						ng-click="showAdvancedConfirmPunition($event,20,'recompense')"
+						class="btn btn-success col-sm-12">Obéit</button>
+				</span>
 			</div>
 		</div>
 	</div>
+
 
 
 	<div class="panel panel-default boxing-panel">
@@ -80,12 +101,13 @@
 						class="col-sm-3 label label-info  btn-tv">{{tvstatus.channelName}}</span>
 				</div>
 			</div>
-		<div class="row">
+			<div class="row">
 				<div>
 					<span class="col-sm-6  btn-tv"> Consommé aujourd'hui</span> <span
 						class="col-sm-3">{{tvstatus.minutesToday}}</span>
 				</div>
 			</div>
+
 
 			<div class="row">
 				<span class="col-sm-4  btn-tv"> {{tvstatus.remainingTime}} </span>
@@ -99,27 +121,38 @@
 						{{tvstatus.amountOfCreditInMinutes}} minutes le
 						{{tvstatus.dateStr}} </span>
 				</div>
-			<h4>Bons Points</h4>
+				<h4>Bons Points</h4>
 				<div ng-if="tvstatus" class="row">
-			<span class="col-sm-12  btn-tv">
-						Total: {{tvstatus.bonPoints}}
-			</span>
-			</div>
+					<span class="col-sm-12  btn-tv"> Total:
+						{{tvstatus.bonPoints}} </span>
+				</div>
 
-			<div ng-if="tvstatus" class="row">
-			<span class="col-sm-12  btn-tv">
-						Depuis le debut de la semaine: {{tvstatus.bonPointsWeek}}
-			</span>
-				
-			</div>
-				
-	
+				<div ng-if="tvstatus" class="row">
+					<span class="col-sm-12  btn-tv"> Depuis le debut de la
+						semaine: {{tvstatus.bonPointsWeek}} </span>
+
+				</div>
+
+
 
 
 			</div>
 		</div>
 	</div>
 
+	<div class="panel panel-default boxing-panel">
+		<div class="panel-heading">
+			<h3 class="panel-title">Etat PC</h3>
+		</div>
+		<div class="panel-body">
+			<div class="row">
+				<div>
+					<span class="col-sm-6  btn-tv">Utilisateur loggé</span> <span
+						class="col-sm-3">{{tvstatus.currentLoggedUser}}</span>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
 </div>

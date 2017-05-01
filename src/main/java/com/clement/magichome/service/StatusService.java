@@ -81,6 +81,7 @@ public class StatusService {
 			}
 			int lenght = IOUtils.read(is, buffer);
 			String userStr = new String(buffer, 0, lenght);
+			webStatus.setCurrentLoggedUser(userStr);
 			tracePcStatus(userStr);
 			LOG.debug("Utilisateur connecté au PC :" + userStr);
 		} catch (IOException e) {
@@ -255,6 +256,7 @@ public class StatusService {
 		}
 	}
 
+	
 	/**
 	 * This enrich all the parameters that are required on request from the web
 	 * service.
@@ -270,7 +272,7 @@ public class StatusService {
 		 */
 		webStatus.setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
 
-		webStatus.setMinutesToday(logRepositoryImpl.getMinutesToday().intValue());
+		webStatus.setMinutesToday(logRepositoryImpl.getMinutesToday());
 
 		/***
 		 * Update the number of bons points from the beginning of the week. TODO

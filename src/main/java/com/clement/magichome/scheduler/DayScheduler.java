@@ -343,6 +343,8 @@ public class DayScheduler {
 		if (calendar.get(Calendar.HOUR_OF_DAY) >= 20) {
 			LOG.debug(
 					"No sufficient action were performed canceling right to watch the TV for that day cancelling retrying");
+			scheduledFuture.cancel(false);
+			creditTask = null;
 			return;
 		}
 

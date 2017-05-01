@@ -61,12 +61,7 @@ public class NoUnitaryTest {
 
 	}
 
-	@Test
-	public void testMinutesToday() {
-		Long dpt = logRepository.getMinutesToday();
-		org.junit.Assert.assertEquals(dpt, new Date());
 
-	}
 
 	@Test
 	public void testGroupByHour() {

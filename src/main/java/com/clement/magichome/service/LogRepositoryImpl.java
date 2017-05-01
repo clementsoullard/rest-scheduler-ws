@@ -5,6 +5,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +36,8 @@ public class LogRepositoryImpl {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
+
+	NumberFormat nfm = new DecimalFormat("00");
 
 	/**
 	 * The number of hours per channel.
@@ -143,7 +147,7 @@ public class LogRepositoryImpl {
 	 * 
 	 * @return
 	 */
-	public Long getMinutesToday() {
+	public String getMinutesToday() {
 		try {
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -152,15 +156,19 @@ public class LogRepositoryImpl {
 			Date todayMidnight = calendar.getTime();
 			Wrapper jsChart = new Wrapper();
 			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").in("TV")),
-					match(Criteria.where("fromDate").gt(todayMidnight)), group().sum("minutes").as("minutes"));
+					match(Criteria.where("fromDate").gt(todayMidnight)), group().sum("seconds").as("seconds"));
 			LOG.debug("Construction de la requete effectuée");
-			MinutesToday minutesToday = mongoTemplate.aggregate(aggregation, "log", MinutesToday.class)
+			MinutesToday secondsToday = mongoTemplate.aggregate(aggregation, "log", MinutesToday.class)
 					.getUniqueMappedResult();
 			LOG.debug("Requete effectue");
-			if (minutesToday == null || minutesToday.getMinutes() == null) {
-				return 0L;
+			if (secondsToday == null || secondsToday.getSeconds() == null) {
+				return "0:00";
 			}
-			return minutesToday.getMinutes();
+			int seconds = (int) secondsToday.getSeconds() % 60;
+			int minutes = (int) secondsToday.getSeconds() / 60 % 60;
+			int hour = (int) secondsToday.getSeconds() / 3600;
+
+			return "" + hour + ":" + nfm.format(minutes) + ":" + nfm.format(seconds);
 
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

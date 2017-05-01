@@ -32,13 +32,8 @@ public class WebStatus {
 	/** The channel that is being watched */
 	private String channelName;
 
-	public String getChannelName() {
-		return channelName;
-	}
-
-	public void setChannelName(String channelName) {
-		this.channelName = channelName;
-	}
+	/** The current user logger */
+	private String currentLoggedUser;
 
 	/** The number of bon points */
 	private Integer bonPointsWeek;
@@ -52,7 +47,15 @@ public class WebStatus {
 	private Integer remainingSecond;
 
 	/** Number of seconds remaining */
-	private Integer minutesToday;
+	private String timeConsumedToday;
+
+	public String getChannelName() {
+		return channelName;
+	}
+
+	public void setChannelName(String channelName) {
+		this.channelName = channelName;
+	}
 
 	public Integer getActiveStandbyState() {
 		return activeStandbyState;
@@ -70,16 +73,24 @@ public class WebStatus {
 		this.playedMediaId = playedMediaId;
 	}
 
-	public Integer getMinutesToday() {
-		return minutesToday;
+	public String getMinutesToday() {
+		return timeConsumedToday;
 	}
 
-	public void setMinutesToday(Integer minutesToday) {
-		this.minutesToday = minutesToday;
+	public void setMinutesToday(String minutesToday) {
+		this.timeConsumedToday = minutesToday;
 	}
 
 	public Integer getRemainingSecond() {
 		return remainingSecond;
+	}
+
+	public String getCurrentLoggedUser() {
+		return currentLoggedUser;
+	}
+
+	public void setCurrentLoggedUser(String currentLoggedUser) {
+		this.currentLoggedUser = currentLoggedUser;
 	}
 
 	public String getRemainingTime() {

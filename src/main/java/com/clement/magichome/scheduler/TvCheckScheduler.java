@@ -78,7 +78,6 @@ public class TvCheckScheduler {
 			LOG.debug("On laisse la télé tourner");
 		}
 		statusService.updatePCStatusLivelyParameters();
-		;
 
 	}
 
