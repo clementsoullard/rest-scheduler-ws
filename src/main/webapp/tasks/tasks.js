@@ -38,7 +38,7 @@ angular.module('myApp.tasks', ['ngRoute'])
 			        success(function(data) {
 			     	  	$scope.message='Thanks for applying. You have been properly registred. You can also register husband/wife and children after closing this window.';
 			       	  	$scope.error=false;
-			       	  	$scope.task={};
+			       	  	$scope.task={expireAtTheEndOfTheDay:false};
 			            list();
 			        }).
 					error(function(data) {
@@ -68,5 +68,6 @@ angular.module('myApp.tasks', ['ngRoute'])
 		}
 			
 list(); 
+$scope.task={expireAtTheEndOfTheDay:false};
 	
 }]);

@@ -19,6 +19,10 @@
 			<strong >
 				{{task.taskName}}</strong> 
 			</span>
+					<span class="col-sm-2" >
+			
+				{{task.owner}}
+			</span>
 			<span class="col-sm-1" >
 		<input type="checkbox"
       	 ng-model="task.done"
@@ -35,10 +39,20 @@
 	
 			<form novalidate name="newTask" class="simple-form">
 		<div class="form-group row">
-			<label for="inputFirstName" class="col-sm-2 col-form-label">
+			<label for="inputFirstName" class="col-sm-1 col-form-label">
 				Name</label>
 			<div class="col-sm-2">
 				<input type="text" ng-model="task.taskName" />
+			</div>
+		<div class="col-sm-2">
+		Owner
+			<select ng-model="task.owner" >
+				  <option value="César">César</option>
+ 				 <option value="Home">Home</option>
+  			</select>
+			</div>	<div class="col-sm-2">
+			Temporaire
+				<input type="checkbox" ng-model="task.expireAtTheEndOfTheDay" value="false">
 			</div>
 	</div>
 			

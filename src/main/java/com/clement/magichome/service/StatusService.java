@@ -71,19 +71,27 @@ public class StatusService {
 	private FileService fileService;
 
 	public void updatePCStatusLivelyParameters() {
-		InputStream is = getStreamStanbyStateFromPC();
-		byte buffer[] = new byte[512];
 
 		try {
+
+			HttpURLConnection connection = getStreamStanbyStateFromPC();
+			InputStream is = connection.getInputStream();
+			int responseCode = connection.getResponseCode();
+			byte buffer[] = new byte[512];
 			if (is == null) {
 				LOG.debug("Le service n'est pas démarré");
 				return;
 			}
-			int lenght = IOUtils.read(is, buffer);
-			String userStr = new String(buffer, 0, lenght);
-			webStatus.setCurrentLoggedUser(userStr);
-			tracePcStatus(userStr);
-			LOG.debug("Utilisateur connecté au PC :" + userStr);
+			if (responseCode == 200) {
+				int lenght = IOUtils.read(is, buffer);
+				String userStr = new String(buffer, 0, lenght);
+				webStatus.setCurrentLoggedUser(userStr);
+				tracePcStatus(userStr);
+				LOG.debug("Utilisateur connecté au PC :" + userStr);
+			} else {
+				LOG.debug("Code retour connection PC :" + responseCode);
+				webStatus.setCurrentLoggedUser("Utilisateur non connecté");
+			}
 		} catch (IOException e) {
 			LOG.error(e.getMessage());
 		}
@@ -241,7 +249,7 @@ public class StatusService {
 	 * @return
 	 * @throws IOException
 	 */
-	private InputStream getStreamStanbyStateFromPC() {
+	private HttpURLConnection getStreamStanbyStateFromPC() {
 		String uri = null;
 		try {
 			uri = propertyManager.getPcUrlPrefix() + "/Api/status";
@@ -249,14 +257,13 @@ public class StatusService {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/json");
-			return connection.getInputStream();
+			return connection;
 		} catch (IOException e) {
 			LOG.debug("Could not connect to the pc at " + uri);
 			return null;
 		}
 	}
 
-	
 	/**
 	 * This enrich all the parameters that are required on request from the web
 	 * service.
@@ -272,7 +279,7 @@ public class StatusService {
 		 */
 		webStatus.setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
 
-		webStatus.setMinutesToday(logRepositoryImpl.getMinutesToday());
+		webStatus.setTimeConsumedToday(logRepositoryImpl.getMinutesToday());
 
 		/***
 		 * Update the number of bons points from the beginning of the week. TODO

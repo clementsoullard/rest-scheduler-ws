@@ -197,4 +197,20 @@ public class TaskService {
 		tasks.addAll(tasksPermanentTasks);
 		return tasks;
 	}
+
+	/**
+	 * List the taks predefined for the day.
+	 * 
+	 * @return
+	 */
+	public List<Task> getTaskForToday() {
+		List<Task> tasksEOD = null;
+		tasksEOD = getCesarTasksExpiringToday();
+		tasksEOD.addAll(getHomeTasksExpiringToday());
+		List<Task> tasksPermanentTasks = taskRepository.getTaskByExpireAtTheEndOfTheDayAndDone(false,
+				false);
+		List<Task> tasks = tasksEOD;
+		tasks.addAll(tasksPermanentTasks);
+		return tasks;
+	}
 }

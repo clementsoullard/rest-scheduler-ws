@@ -12,10 +12,11 @@ import com.clement.magichome.object.Task;
 @RepositoryRestResource(collectionResourceRel = "task", path = "task")
 public interface TaskRepository extends MongoRepository<Task, String> {
 
-	List<Task> getTaskByDateAndOwnerAndExpireAtTheEndOfTheDay(Date date, String owner,
-			Boolean expiresAtTheEndOfTheDay);
+	List<Task> getTaskByDateAndOwnerAndExpireAtTheEndOfTheDay(Date date, String owner, Boolean expiresAtTheEndOfTheDay);
 
 	List<Task> getTaskByOwnerAndExpireAtTheEndOfTheDayAndDone(String owner, Boolean expiresAtTheEndOfTheDay,
 			Boolean done);
+
+	List<Task> getTaskByExpireAtTheEndOfTheDayAndDone(Boolean expiresAtTheEndOfTheDay, Boolean done);
 
 }

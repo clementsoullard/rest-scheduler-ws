@@ -14,6 +14,7 @@ import com.clement.magichome.scheduler.DayScheduler;
 
 public class WebStatus {
 	public final static DateFormat df = new SimpleDateFormat("EEEEE dd, HH:mm", Locale.FRANCE);
+	
 	/** The date of the future credit. */
 	private Date dateOfCredit;
 
@@ -73,11 +74,11 @@ public class WebStatus {
 		this.playedMediaId = playedMediaId;
 	}
 
-	public String getMinutesToday() {
+	public String getTimeConsumedToday() {
 		return timeConsumedToday;
 	}
 
-	public void setMinutesToday(String minutesToday) {
+	public void setTimeConsumedToday(String minutesToday) {
 		this.timeConsumedToday = minutesToday;
 	}
 

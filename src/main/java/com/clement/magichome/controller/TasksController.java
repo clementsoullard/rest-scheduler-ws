@@ -17,11 +17,15 @@ public class TasksController {
 	@Autowired
 	TaskService tasksService;
 
-	@RequestMapping(value = "/today-tasks", method = RequestMethod.GET)
+	@RequestMapping(value = "/today-tasks-cesar", method = RequestMethod.GET)
 	public List<Task> getTasksTodayCesar() throws Exception {
 		return tasksService.getTaskForToday(TVSchedulerConstants.CESAR);
 	}
-
+	
+	@RequestMapping(value = "/today-tasks", method = RequestMethod.GET)
+	public List<Task> getTasksToday() throws Exception {
+		return tasksService.getTaskForToday();
+	}
 	@RequestMapping(value = "/today-tasks-home", method = RequestMethod.GET)
 	public List<Task> getTasksTodayHome() throws Exception {
 		return tasksService.getTaskForToday(TVSchedulerConstants.HOME);
