@@ -1,11 +1,8 @@
 package com.clement.magichome.controller;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Date;
 
 import javax.annotation.Resource;
-import javax.websocket.server.PathParam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +34,7 @@ import com.clement.magichome.service.StatusService;
 import com.clement.magichome.service.VacancesRepository;
 import com.clement.magichome.service.VacancesService;
 import com.clement.magichome.task.AllowDenyUserTask;
+import com.clement.magichome.task.KickOffConnectedUserTask;
 
 @RestController
 public class TVSchedulerController {
@@ -152,8 +150,22 @@ public class TVSchedulerController {
 	 */
 	@GetMapping("/pc-activate/{enable}")
 	public void activationPc(@PathVariable("enable") Boolean enable) throws Exception {
-		LOG.debug("Actiovation " + enable);
+		LOG.debug("Activation " + enable);
 		AllowDenyUserTask allowDenyUserTask = new AllowDenyUserTask(null, propertyManager, enable, "cesar");
+		allowDenyUserTask.run();
+	}
+
+	
+	/**
+	 * Display the usage per channel
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@GetMapping("/pc-disconnect")
+	public void activationPc() throws Exception {
+		LOG.debug("Appel de la déconnection");
+		KickOffConnectedUserTask allowDenyUserTask = new KickOffConnectedUserTask(propertyManager);
 		allowDenyUserTask.run();
 	}
 

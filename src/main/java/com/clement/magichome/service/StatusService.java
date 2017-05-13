@@ -22,6 +22,7 @@ import com.clement.magichome.PropertyManager;
 import com.clement.magichome.object.Channel;
 import com.clement.magichome.object.Task;
 import com.clement.magichome.object.WebStatus;
+import com.clement.magichome.object.livebox.PCStatus;
 import com.clement.magichome.object.livebox.TVWrapper;
 import com.clement.magichome.scheduler.DayScheduler;
 import com.google.gson.Gson;
@@ -75,6 +76,7 @@ public class StatusService {
 		try {
 
 			HttpURLConnection connection = getStreamStanbyStateFromPC();
+			connection.setConnectTimeout(10000);
 			InputStream is = connection.getInputStream();
 			int responseCode = connection.getResponseCode();
 			byte buffer[] = new byte[512];
@@ -83,17 +85,21 @@ public class StatusService {
 				return;
 			}
 			if (responseCode == 200) {
+
 				int lenght = IOUtils.read(is, buffer);
-				String userStr = new String(buffer, 0, lenght);
-				webStatus.setCurrentLoggedUser(userStr);
-				tracePcStatus(userStr);
-				LOG.debug("Utilisateur connecté au PC :" + userStr);
+				String json = new String(buffer, 0, lenght);
+				PCStatus pcStatus = gson.fromJson(json, PCStatus.class);
+				webStatus.setCurrentLoggedUser(pcStatus.getUsername());
+
+				tracePcStatus(pcStatus.getUsername());
+				LOG.debug("Utilisateur connecté au PC :" + pcStatus.getUsername());
 			} else {
 				LOG.debug("Code retour connection PC :" + responseCode);
 				webStatus.setCurrentLoggedUser("Utilisateur non connecté");
 			}
-		} catch (IOException e) {
-			LOG.error(e.getMessage());
+		} catch (Exception e) {
+			webStatus.setCurrentLoggedUser(null);
+			LOG.debug("Connection error " + e.getMessage());
 		}
 	}
 
@@ -188,7 +194,7 @@ public class StatusService {
 	 * This trace in DB the TV status
 	 */
 	private void tracePcStatus(String user) {
-		Integer secondsPc = secondsPerChannel.get(user);
+		Integer secondsPc = secondPcUsagePerUsers.get(user);
 		if (secondsPc == null) {
 			secondsPc = 0;
 		}
@@ -278,8 +284,13 @@ public class StatusService {
 		 * 
 		 */
 		webStatus.setBonPoints(bonPointDaoImpl.sumBonPointV2().getTotal().intValue());
+		int tv = logRepositoryImpl.getTimeTVToday();
+		int pc = logRepositoryImpl.getTimePcToday();
+		int tvandpc = tv + pc;
 
-		webStatus.setTimeConsumedToday(logRepositoryImpl.getMinutesToday());
+		webStatus.setTimeConsumedToday(logRepositoryImpl.secondsToString(tv));
+		webStatus.setTimePcConsumedToday(logRepositoryImpl.secondsToString(pc));
+		webStatus.setTimeTvAndPCConsumedToday(logRepositoryImpl.secondsToString(tvandpc));
 
 		/***
 		 * Update the number of bons points from the beginning of the week. TODO

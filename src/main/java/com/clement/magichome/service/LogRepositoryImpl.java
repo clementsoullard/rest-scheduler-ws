@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,8 +129,9 @@ public class LogRepositoryImpl {
 			List<Data> datas = jsChart.getData();
 			for (SecondPerUserOrdi secondsPerUserOrdi : secondsPerUserOrdiAgg) {
 				if (secondsPerUserOrdi.getUser() != null) {
+					String user = secondsPerUserOrdi.getUser();
 					Data data = new Data();
-					data.setLabel(secondsPerUserOrdi.getUser());
+					data.setLabel(user);
 					data.setValue(secondsPerUserOrdi.getTotalhours());
 					datas.add(data);
 					LOG.debug(secondsPerUserOrdi.getUser().toString() + " " + secondsPerUserOrdi.getTotalSeconds());
@@ -147,28 +149,50 @@ public class LogRepositoryImpl {
 	 * 
 	 * @return
 	 */
-	public String getMinutesToday() {
+	public Integer getTimeTVToday() {
 		try {
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.HOUR_OF_DAY, 0);
-			calendar.set(Calendar.MINUTE, 1);
-			calendar.set(Calendar.SECOND, 0);
-			Date todayMidnight = calendar.getTime();
-			Wrapper jsChart = new Wrapper();
+			Date todayMidnight = DateUtils.truncate(new Date(), Calendar.DATE);
 			Aggregation aggregation = newAggregation(match(Criteria.where("metricName").in("TV")),
 					match(Criteria.where("fromDate").gt(todayMidnight)), group().sum("seconds").as("seconds"));
-			LOG.debug("Construction de la requete effectuée");
 			MinutesToday secondsToday = mongoTemplate.aggregate(aggregation, "log", MinutesToday.class)
 					.getUniqueMappedResult();
-			LOG.debug("Requete effectue");
 			if (secondsToday == null || secondsToday.getSeconds() == null) {
-				return "0:00";
+				return 0;
 			}
-			int seconds = (int) secondsToday.getSeconds() % 60;
-			int minutes = (int) secondsToday.getSeconds() / 60 % 60;
-			int hour = (int) secondsToday.getSeconds() / 3600;
+			return secondsToday.getSeconds();
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
 
-			return "" + hour + ":" + nfm.format(minutes) + ":" + nfm.format(seconds);
+	public String secondsToString(int secondsTodayI) {
+		int seconds = (int) secondsTodayI % 60;
+		int minutes = (int) secondsTodayI / 60 % 60;
+		int hour = (int) secondsTodayI / 3600;
+
+		return "" + hour + ":" + nfm.format(minutes) + ":" + nfm.format(seconds);
+
+	}
+
+	/**
+	 * The number of minut watched today
+	 * 
+	 * @return
+	 */
+	public Integer getTimePcToday() {
+		try {
+			Date todayMidnight = DateUtils.truncate(new Date(), Calendar.DATE);
+			Aggregation aggregation = newAggregation(
+					match(Criteria.where("metricName").in("PC").and("user").is("DESKTOP-BUREAU\\cesar")),
+					match(Criteria.where("fromDate").gt(todayMidnight)), group().sum("seconds").as("seconds"));
+			MinutesToday secondsToday = mongoTemplate.aggregate(aggregation, "log", MinutesToday.class)
+					.getUniqueMappedResult();
+			if (secondsToday == null || secondsToday.getSeconds() == null) {
+				return 0;
+			}
+
+			return secondsToday.getSeconds();
 
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

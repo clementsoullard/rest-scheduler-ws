@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.scheduler.DayScheduler;
-import com.clement.magichome.service.BonPointDaoImpl;
-import com.clement.magichome.service.FileService;
 
 /**
  * This will credit

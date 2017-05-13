@@ -14,7 +14,7 @@ import com.clement.magichome.scheduler.DayScheduler;
 
 public class WebStatus {
 	public final static DateFormat df = new SimpleDateFormat("EEEEE dd, HH:mm", Locale.FRANCE);
-	
+
 	/** The date of the future credit. */
 	private Date dateOfCredit;
 
@@ -47,8 +47,14 @@ public class WebStatus {
 	/** Number of seconds remaining */
 	private Integer remainingSecond;
 
-	/** Number of seconds remaining */
+	/** Time consumed for TV */
 	private String timeConsumedToday;
+
+	/** Time consumed for TV and PC */
+	private String timeTvAndPCConsumedToday;
+
+	/** Time consumed for TV */
+	private String timePcConsumedToday;
 
 	public String getChannelName() {
 		return channelName;
@@ -76,6 +82,14 @@ public class WebStatus {
 
 	public String getTimeConsumedToday() {
 		return timeConsumedToday;
+	}
+
+	public String getTimeTvAndPCConsumedToday() {
+		return timeTvAndPCConsumedToday;
+	}
+
+	public void setTimeTvAndPCConsumedToday(String timeTvAndPCConsumedToday) {
+		this.timeTvAndPCConsumedToday = timeTvAndPCConsumedToday;
 	}
 
 	public void setTimeConsumedToday(String minutesToday) {
@@ -134,6 +148,14 @@ public class WebStatus {
 
 	public Integer getAmountOfCreditInMinutes() {
 		return amountOfCreditInMinutes;
+	}
+
+	public String getTimePcConsumedToday() {
+		return timePcConsumedToday;
+	}
+
+	public void setTimePcConsumedToday(String timePcConsumedToday) {
+		this.timePcConsumedToday = timePcConsumedToday;
 	}
 
 	public void setAmountOfCreditInMinutes(Integer amountOfCreditInMinutes) {

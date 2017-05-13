@@ -143,10 +143,5 @@ public class BonPointTest {
 		org.junit.Assert.assertEquals(0L, bonPointSumBeginningOfWeek.getTotal().longValue());
 	}
 
-	@Test
-	public void testTaskDoneInDay() {
-		Boolean sufficientActionToWatchTV = bonPointDaoImpl.sufficientActionToWatchTv();
-		org.junit.Assert.assertEquals(false, sufficientActionToWatchTV);
-	}
 
 }
