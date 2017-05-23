@@ -1,6 +1,32 @@
 How to install
+
+ apt-get update 
+ apt-get upgrade 
+ 
 apt-get install openjdk-8-jdk
- apt-get install mongodb
+apt-get install mongodb
+apt-get install apache2
+
+a2enmod proxy_ajp
+a2enmod proxy_ssl
+a2ensite default-ssl
+ vi /etc/apache2/conf-enabled/java.conf
+ 
+<Location /tvscheduler>
+ProxyPass  ajp://localhost:8009/tvscheduler
+ProxyPassReverse http://www.cesarsuperstar.com/tvscheduler
+allow from all
+</Location>
+
+ service apache2 restart
+
+
+update-rc.d ssh enable 2 3 4 5
+
+vi .ssh/authorized_keys
+
+ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAgtNOvkPB4QHGGLw+hixQggvlcr7G7LrkJsBZ5f5hl+ekJsgAwV/3ODqjiQaEZ7vRFq0siWvMwLXuNX5vevplKLg7wvyf+R/tp/u2b88XPBwyEYUVMsexHLlN0hAuMNqAxw2SMa02WZXsYZVHJd1daamcieXSdKHpJ77u7dtPohPnS8a3LBHEFhIMtA8/tgnibkyEqepqjicQUKy8gCpLx7j7wVp9dV2QN5xxghHyNAoTbmfxmzXfDxNyt2ub4VEDVUE0VakjCNsqtHrsRLRlwjjVsEjSlR1/ktFpLOfagmKom+QmfUxnUU8/lLkPSu9oJSAy2muBXVHlHsZLNjCiIw== imported-openssh-key
+
 unzip apache-tomcat-*.zip
 mv apache-tomcat-* tomcat-8
 cd tomcat-8
@@ -29,6 +55,9 @@ scheduler.work.path=/home/clement/scheduler/work
 livebox.urlPrefix=http://192.168.1.12:8080
 production.mode=false
 
+# Configuration du fichier de log
+
+
 vi conf-ext/logback.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
@@ -49,15 +78,9 @@ vi conf-ext/logback.xml
   </root>
 </configuration>
 
-a2enmod proxy_ajp
-a2enmod proxy_ssl
-a2ensite default-ssl
- 
-<Location /tvscheduler>
-ProxyPass  ajp://localhost:8009/tvscheduler
-ProxyPassReverse http://www.cesarsuperstar.com/tvscheduler
-allow from all
-</Location>
+
+mkdir -p /home/clement/scheduler/work/
+
 
 
 Importthe channel from the channels file in data
