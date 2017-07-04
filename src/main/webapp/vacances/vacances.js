@@ -14,7 +14,7 @@ angular
 				'VacancesCtrl',
 				[			'$scope',		'$http',	'$mdDialog',		'$mdMedia',		'$interval',		function($scope, $http, $mdDialog, $mdMedia, $interval) {
 
-					
+					$scope.menuSelected="vacances"; 	
 					/**
 					 * List the teams that are displayed on the right to select for the match
 					 */		

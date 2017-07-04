@@ -95,6 +95,10 @@ public class TVData {
 	}
 
 	public Integer getActiveStandbyState() {
+		// In case this value is not defined null is returned.
+		if (activeStandbyState == null) {
+			return 1;
+		}
 		return activeStandbyState;
 	}
 

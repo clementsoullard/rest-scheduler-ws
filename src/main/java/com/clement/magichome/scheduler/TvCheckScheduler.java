@@ -26,6 +26,7 @@ import com.clement.magichome.service.FileService;
 import com.clement.magichome.service.LogRepository;
 import com.clement.magichome.service.StatusService;
 import com.clement.magichome.service.TaskService;
+import com.clement.magichome.service.TelevisionSimulator;
 
 @Configuration
 @EnableAutoConfiguration
@@ -64,20 +65,22 @@ public class TvCheckScheduler {
 	@Resource
 	private FileService fileService;
 
+	@Resource
+	TelevisionSimulator televisionSimulator;
+
 	/**
 	 * Every 15 sec. check the status of the TV and depending on the result it
 	 * will sitch the TV off.
 	 */
 	@Scheduled(cron = "*/${scheduler.tvcheckinterval} * * * * *")
 	public void updateTvStatus() {
-		Boolean shouldPressOnOffBasedOnTime = statusService.updateTvStatusLivelyParameters();
-		if (shouldPressOnOffBasedOnTime) {
+		Boolean shouldPressButtonBecauseRelayIsOff = statusService.updateTvStatusLivelyParameters();
+		if (shouldPressButtonBecauseRelayIsOff) {
 			LOG.debug("En dehors des horaires, on ne regarde pas la télé");
 			pressOnOffButton();
 		} else {
 			LOG.debug("On laisse la télé tourner");
 		}
-		statusService.updatePCStatusLivelyParameters();
 
 	}
 
@@ -153,6 +156,8 @@ public class TvCheckScheduler {
 			} catch (IOException e) {
 				LOG.error(e.getMessage(), e);
 			}
+		} else {
+			televisionSimulator.pressOnButton();
 		}
 
 	}

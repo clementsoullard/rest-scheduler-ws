@@ -3,6 +3,7 @@ package com.clement.magichome.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -14,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.PropertyManager;
+import com.clement.magichome.scheduler.DayScheduler;
 import com.clement.magichome.scheduler.TvCheckScheduler;
+import com.clement.magichome.scheduler.TvStatusEnum;
 
 @Repository
 public class FileService {
@@ -40,6 +43,11 @@ public class FileService {
 			ps = new PrintStream(file);
 			ps.print(value);
 			ps.close();
+			if (value == DayScheduler.SCHEDULER_OFF) {
+				writeStatus(TvStatusEnum.OFF);
+			} else {
+				writeStatus(TvStatusEnum.ON);
+			}
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -71,7 +79,8 @@ public class FileService {
 	}
 
 	/**
-	 * Create a file if the Livebox is in Standby mode if this file is existing, the countdown will stop.
+	 * Create a file if the Livebox is in Standby mode if this file is existing,
+	 * the countdown will stop.
 	 * 
 	 * @param value
 	 */
@@ -99,10 +108,6 @@ public class FileService {
 	 * @return true is the TV is on at the scheduler level.
 	 */
 	public boolean getTvStatusRelay() {
-		if (!propertyManager.getProductionMode()) {
-			LOG.debug("In debug mode relay is assumed on");
-			return true;
-		}
 		File file = new File(propertyManager.getPathStatus());
 		try {
 			if (file.exists()) {
@@ -126,9 +131,22 @@ public class FileService {
 	}
 
 	/**
-	 * Return the number of seconds remaning /tmp/scheduler/REM
 	 * 
-	 * @return true is the TV is on at the scheduler level.
+	 */
+	public void writeStatus(TvStatusEnum tvStatusEnum) {
+		File file = new File(propertyManager.getPathStatus());
+		PrintStream ps;
+		try {
+			ps = new PrintStream(new FileOutputStream(file));
+			ps.print(tvStatusEnum.getSerializeValue());
+			ps.close();
+		} catch (FileNotFoundException e) {
+			LOG.error("Erreur dans l'écriture du fichier de status " + e.getMessage());
+		}
+	}
+
+	/**
+	 * @return the number of seconds remaning /tmp/scheduler/REM.
 	 */
 	public Integer getSecondRemaining() {
 		File file = new File(propertyManager.getPathRemaining());

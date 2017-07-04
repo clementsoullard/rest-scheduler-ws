@@ -10,7 +10,8 @@ angular.module('myApp.conso-computer', ['ngRoute'])
 }])
 
 .controller('ConsoComputerCtrl', ['$scope','$http', function($scope,$http) {
-
+$scope.menuSelected="consoPC"; 
+	
 $scope.myDataSource = {};
   $http.get('/tvscheduler/chart-computer').
         success(function(data) {

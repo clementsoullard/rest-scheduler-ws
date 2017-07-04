@@ -40,7 +40,7 @@ import com.clement.magichome.task.CreditTimeForScreenTask;
 
 public class DayScheduler {
 
-	private static final int SCHEDULER_OFF = -1;
+	public static final int SCHEDULER_OFF = -1;
 
 	private static final int SCHEDULER_ON = -2;
 

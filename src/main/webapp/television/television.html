@@ -1,6 +1,10 @@
 <head>
 <meta charset="UTF-8">
 </head>
+<div ng-include="'menu-tele.html'"></div>
+
+
+	<div >
 
 <div class="container">
 
@@ -34,6 +38,12 @@
 					<button ng-click="showAdvancedControlTV($event,3600)"
 						class="btn btn-info col-sm-12">60mn</button>
 				</span>
+			</div>
+			<div class="row">
+				<span class="col-sm-3">
+					<button ng-click="simuOnOff()"
+						class="btn btn-success col-sm-12">SimuOnOff</button>
+				</span> 
 			</div>
 		</div>
 	</div>
@@ -167,4 +177,5 @@
 	</div>
 
 
+</div>
 </div>

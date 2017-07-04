@@ -6,19 +6,39 @@ How to install
 apt-get install openjdk-8-jdk
 apt-get install mongodb
 apt-get install apache2
+apt-get install vim
+apt-get install wiringpi
+apt-get install git*git config --global user.email "clementsoullard@yahoo.fr"
+git config --global user.name "Clement Soullard"
+
+
+git clone https://github.com/clementsoullard/background-scheduler-service.git -buse_lcd_lib
 
 a2enmod proxy_ajp
 a2enmod proxy_ssl
 a2ensite default-ssl
+a2enmod ssl
  vi /etc/apache2/conf-enabled/java.conf
+
+Check the configuration by going to with browser on the HTTPS
+
+The take the info of the certificate export it and replace the file rapberry.crt in the Android project
+
+  apt-get install tinyproxy
  
+ 
+ vi /etc/tinyproxy.conf
+ 
+ Allow 192.168.1.0/16
+ 
+ service tinyproxy start
 <Location /tvscheduler>
 ProxyPass  ajp://localhost:8009/tvscheduler
 ProxyPassReverse http://www.cesarsuperstar.com/tvscheduler
 allow from all
 </Location>
 
- service apache2 restart
+service apache2 restart
 
 
 update-rc.d ssh enable 2 3 4 5
@@ -105,10 +125,61 @@ decodeur 192.168.1.12
 
  ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
  
+ mkdir /mnt/nas
  mount -tcifs //192.168.1.23/backup /mnt/nas -o"username=clement,password=Cl3m3nt-00"
  
+mongorestore -d tvscheduler dumpmongo/tvscheduler/
 
 
+
+vi /etc/cron.daily/mongodump
+
+#!/bin/bash
+cd /tmp/
+mongodump -dtvscheduler -omongodump
+tar -cvzf dump-mongo-`date +%Y%m%d`-day.tgz mongodump/
+cp  dump-mongo-`date +%Y%m%d`-day.tgz /mnt/nas/backup-mongo/
+rm -f dump-mongo-*
+rm -rf mongodump/
+find /mnt/nas/backup-mongo/ -name *day* -mtime +7 -exec rm -f {} \;
+
+chmod +x /etc/cron.daily/mongodump
+
+
+vi /etc/cron.weekly/mongodump-week
+
+#!/bin/bash
+cd /tmp/
+mongodump -dtvscheduler -omongodump
+tar -cvzf dump-mongo-`date +%Y%m%d`-week.tgz mongodump/
+cp  dump-mongo-`date +%Y%m%d`-week.tgz /mnt/nas/backup-mongo/
+rm -f dump-mongo-*
+rm -rf mongodump/
+find /mnt/nas/backup-mongo/ -name *week* -mtime +31 -exec rm -f {} \;
+
+chmod +x /etc/cron.weekly/mongodump-week
+
+vi /etc/cron.monthly/mongodump-month
+
+#!/bin/bash
+cd /tmp/
+mongodump -dtvscheduler -omongodump
+tar -cvzf dump-mongo-`date +%Y%m%d`-month.tgz mongodump/
+cp  dump-mongo-`date +%Y%m%d`-month.tgz /mnt/nas/backup-mongo/
+rm -f dump-mongo-*
+rm -rf mongodump/
+find /mnt/nas/backup-mongo/ -name *month* -mtime +365 -exec rm -f {} \;
+
+chmod +x /etc/cron.monthly/mongodump-month
+
+service cron reload
+
+vi /etc/cron.daily/backup-tomcat
+
+#!/bin/sh
+SCOPE=day
+tar -cvzf /mnt/nas/backup-tomcat/tomcat-`date +%Y%m%d`-$SCOPE.tgz -C/home/clement tomcat-8
+find /mnt/nas/backup-tomcat/ -name \*$SCOPE\* -mtime +7 -exec rm -f {} \;
 
  
  

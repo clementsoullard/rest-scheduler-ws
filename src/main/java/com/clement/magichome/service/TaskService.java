@@ -195,6 +195,10 @@ public class TaskService {
 				false);
 		List<Task> tasks = tasksEOD;
 		tasks.addAll(tasksPermanentTasks);
+		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+		tasksPermanentTasks = taskRepository.getTaskByDateAndOwnerAndExpireAtTheEndOfTheDayAndDone(date, owner, false,
+				true);
+		tasks.addAll(tasksPermanentTasks);
 		return tasks;
 	}
 

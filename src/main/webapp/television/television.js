@@ -19,7 +19,7 @@ angular
 						'$mdMedia',
 						'$interval',
 						function($scope, $http, $mdDialog, $mdMedia, $interval) {
-
+							$scope.menuSelected="controlTV"; 
 							/**
 							 * Pin initialization for the session
 							 * 
@@ -76,6 +76,28 @@ angular
 															.log('Echec de l\'appel WS tv control');
 													$scope.punitionMessage = 'Un problème a eu lieu';
 													$scope.error = true;
+												})
+							};
+							/**
+							 * Simulate intest environment a press on on/off button on tv
+							 * 
+							 */
+
+							$scope.simuOnOff = function(sec) {
+								console.log('Simulateur on/of');
+								$http
+										.get('/tvscheduler/pressonoff')
+										.success(
+												function(data) {
+													console
+															.log('Simu Ok');
+	
+												})
+										.error(
+												function(data) {
+													console
+															.log('Echec de la simulation');
+
 												})
 							};
 

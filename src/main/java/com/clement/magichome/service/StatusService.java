@@ -33,6 +33,9 @@ public class StatusService {
 	@Resource
 	private PropertyManager propertyManager;
 
+	@Resource
+	TelevisionSimulator televisionSimulator;
+
 	static final Logger LOG = LoggerFactory.getLogger(StatusService.class);
 
 	private Gson gson = new Gson();
@@ -114,7 +117,7 @@ public class StatusService {
 	 * </ul>
 	 * This class also update the status of the relay (write function)
 	 * 
-	 * @return true if the TV should be swithed off.
+	 * @return true if the TV should be switched off.
 	 */
 	public boolean updateTvStatusLivelyParameters() {
 		if (webStatus == null) {
@@ -131,7 +134,12 @@ public class StatusService {
 			InputStreamReader xml = new InputStreamReader(is);
 			tvWrapper = gson.fromJson(xml, TVWrapper.class);
 			Integer activeStandbyState = tvWrapper.getResult().getData().getActiveStandbyState();
+			if(activeStandbyState!=null){
 			webStatus.setActiveStandbyState(activeStandbyState);
+			}else{
+				// When the TV is not on (request is not answered, we assume the TV is in standby state)
+				webStatus.setActiveStandbyState(1);
+			}
 			Boolean standbyState = (activeStandbyState == 1);
 			/**
 			 * In case the TV is on we retrieve the media played id (channel)
@@ -157,7 +165,11 @@ public class StatusService {
 			LOG.debug("Checking status : Standby=" + standbyState + ", getTvStatusRelay=" + relayStatus);
 
 		} else {
+			LOG.info("Could not establish connection with server assuming closed relay");
 			tvWrapper = new TVWrapper();
+			webStatus.setActiveStandbyState(1);
+			webStatus.setRelayStatus(false);
+		
 		}
 
 		return shouldPressOnOffButton;
@@ -174,6 +186,8 @@ public class StatusService {
 			if (channels != null && channels.size() > 0) {
 				Channel channel = channels.get(0);
 				webStatus.setChannelName(channel.getName());
+			} else {
+				webStatus.setChannelName("Canal inconnu : " + channelId);
 			}
 		}
 		if (channelId != null) {
@@ -236,12 +250,13 @@ public class StatusService {
 			if (propertyManager.getProductionMode()) {
 				uri = propertyManager.getLiveboxUrlPrefix() + "/remoteControl/cmd?operation=10";
 			} else {
-				uri = "http://localhost:8080/tvscheduler/test/livebox-sample-actif.json";
+				return televisionSimulator.getJSON();
 			}
 			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/json");
+			connection.setConnectTimeout(2500);
 			return connection.getInputStream();
 		} catch (IOException e) {
 			LOG.error("Could not connect to the livebox with uri " + uri);

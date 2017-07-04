@@ -13,6 +13,7 @@ import com.clement.magichome.object.Task;
 public interface TaskRepository extends MongoRepository<Task, String> {
 
 	List<Task> getTaskByDateAndOwnerAndExpireAtTheEndOfTheDay(Date date, String owner, Boolean expiresAtTheEndOfTheDay);
+	List<Task> getTaskByDateAndOwnerAndExpireAtTheEndOfTheDayAndDone(Date date, String owner, Boolean expiresAtTheEndOfTheDay,Boolean done);
 
 	List<Task> getTaskByOwnerAndExpireAtTheEndOfTheDayAndDone(String owner, Boolean expiresAtTheEndOfTheDay,
 			Boolean done);

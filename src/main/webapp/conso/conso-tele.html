@@ -1,4 +1,14 @@
+<head>
+<meta charset="UTF-8">
+</head>
 <script type="text/javascript" src="../js/jscharts.js"></script>
+<div ng-include="'menu-tele.html'"></div>
+
+
+
+
+	<div >
+
 <div class="container">
  <div class="row">
   <select ng-model="typeGraph" ng-change="reload()">
@@ -6,6 +16,7 @@
   <option value="chart-channel">par chaine</option>
 </select> 
  </div>
+
  <div class="row">
  <div fusioncharts
        width="600"
@@ -14,4 +25,5 @@
        dataSource="{{myDataSource}}" class="text-center">
  </div>
 </div>	
+</div>
 </div>

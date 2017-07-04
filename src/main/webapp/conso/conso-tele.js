@@ -11,6 +11,7 @@ angular.module('myApp.conso-tele', ['ngRoute'])
 
 .controller('ConsoTeleCtrl', ['$scope','$http', function($scope,$http) {
 
+	$scope.menuSelected="consoTV"; 
 function load(){	
 $scope.myDataSource = {};
 console.log("Chagement de la datasource "+$scope.typeGraph);
