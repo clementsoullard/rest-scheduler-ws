@@ -7,6 +7,10 @@ import org.springframework.stereotype.Repository;
 public class PropertyManager {
 	@Value("${scheduler.work.path}")
 	String workPath;
+	
+	@Value("${tvscheduler.monitor}")
+	Boolean monitorTVAndPC;
+
 
 	@Value("${livebox.urlPrefix}")
 	String liveboxUrlPrefix;
@@ -48,6 +52,12 @@ public class PropertyManager {
 	public String getPcUrlPrefix() {
 		return pcUrlPrefix;
 	}
+
+	public Boolean getMonitorTVAndPC() {
+		return monitorTVAndPC;
+	}
+	
+	
 	
 	
 }

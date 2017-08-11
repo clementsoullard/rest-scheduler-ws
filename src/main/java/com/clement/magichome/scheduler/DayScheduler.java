@@ -83,7 +83,9 @@ public class DayScheduler {
 	/** Every day we check at what time the time for tv is granted */
 	@Scheduled(cron = "0 0 * * * *")
 	public void computeNextOccurenceOfCredit() throws IOException {
-
+		if (!propertyManager.getMonitorTVAndPC()) {
+			return;
+		}
 		Calendar calendar = Calendar.getInstance();
 		DatePriveDeTele priveDeTeleUntil = bonPointDaoImpl.maxDate();
 
@@ -162,6 +164,10 @@ public class DayScheduler {
 	 */
 	@Scheduled(cron = "0 0 2 * * *")
 	public void switchOffInNight() throws IOException {
+		if (!propertyManager.getMonitorTVAndPC()) {
+			return;
+		}
+
 		fileService.writeCredit(SCHEDULER_OFF);
 	}
 
@@ -170,6 +176,7 @@ public class DayScheduler {
 	 */
 	@Scheduled(cron = "0 0 10 * * *")
 	public void switchOnForCris() throws IOException {
+	
 		if (isWorkingDay()) {
 			fileService.writeCredit(SCHEDULER_ON);
 			LOG.info("Allumage de la TV pour Cris");

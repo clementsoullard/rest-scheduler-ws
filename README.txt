@@ -130,6 +130,7 @@ decodeur 192.168.1.12
  
 mongorestore -d tvscheduler dumpmongo/tvscheduler/
 
+show collections
 
 
 vi /etc/cron.daily/mongodump

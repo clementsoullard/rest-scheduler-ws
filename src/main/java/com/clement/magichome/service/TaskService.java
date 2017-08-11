@@ -143,6 +143,30 @@ public class TaskService {
 		taskRepository.save(task);
 	}
 
+	/**
+	 * 
+	 * @param task
+	 */
+	public Task updateTask(Task task, String id) {
+		/**
+		 * In case the id starts with a TMP, this mean that the application.
+		 */
+		if (id.startsWith("TMP")) {
+			task.setId(null);
+			return taskRepository.save(task);
+
+		} else {
+			Date date = DateUtils.truncate(new Date(), Calendar.DATE);
+			Task taskToUpdate = taskRepository.findOne(id);
+			task.setDate(date);
+			taskToUpdate.setDone(task.getDone());
+			if (task.getDone() && task.getDateCompletion() == null) {
+				taskToUpdate.setDateCompletion(new Date());
+			}
+			return taskRepository.save(taskToUpdate);
+		}
+	}
+
 	public List<Task> getHomeTasksExpiringToday() {
 		Calendar calendar = Calendar.getInstance();
 		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
@@ -191,8 +215,10 @@ public class TaskService {
 		} else if (owner.equals(TVSchedulerConstants.HOME)) {
 			tasksEOD = getHomeTasksExpiringToday();
 		}
-		List<Task> tasksPermanentTasks = taskRepository.getTaskByOwnerAndExpireAtTheEndOfTheDayAndDone(owner, false,
-				false);
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.HOUR, -2);
+		List<Task> tasksPermanentTasks = taskRepository
+				.getTaskByOwnerAndExpireAtTheEndOfTheDayAndDateCompletionAfter(owner, false, calendar.getTime());
 		List<Task> tasks = tasksEOD;
 		tasks.addAll(tasksPermanentTasks);
 		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
@@ -208,13 +234,12 @@ public class TaskService {
 	 * @return
 	 */
 	public List<Task> getTaskForToday() {
-		List<Task> tasksEOD = null;
-		tasksEOD = getCesarTasksExpiringToday();
-		tasksEOD.addAll(getHomeTasksExpiringToday());
-		List<Task> tasksPermanentTasks = taskRepository.getTaskByExpireAtTheEndOfTheDayAndDone(false,
-				false);
-		List<Task> tasks = tasksEOD;
-		tasks.addAll(tasksPermanentTasks);
-		return tasks;
+		getCesarTasksExpiringToday();
+		getHomeTasksExpiringToday();
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.HOUR, -2);
+		List<Task> tasksPermanentTasks = taskRepository
+				.getTaskByDateCompletionAfterOrDateCompletionIsNullOrderByDoneAsc(calendar.getTime());
+		return tasksPermanentTasks;
 	}
 }

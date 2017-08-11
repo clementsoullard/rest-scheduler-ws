@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -40,6 +41,9 @@ import com.clement.magichome.service.TelevisionSimulator;
 public class TvCheckScheduler {
 
 	static final Logger LOG = LoggerFactory.getLogger(TvCheckScheduler.class);
+
+	@Value("${tvscheduler.monitor}")
+	Boolean monitorTVAndPC;
 
 	@Resource
 	StatusService statusService;
@@ -74,12 +78,14 @@ public class TvCheckScheduler {
 	 */
 	@Scheduled(cron = "*/${scheduler.tvcheckinterval} * * * * *")
 	public void updateTvStatus() {
-		Boolean shouldPressButtonBecauseRelayIsOff = statusService.updateTvStatusLivelyParameters();
-		if (shouldPressButtonBecauseRelayIsOff) {
-			LOG.debug("En dehors des horaires, on ne regarde pas la télé");
-			pressOnOffButton();
-		} else {
-			LOG.debug("On laisse la télé tourner");
+		if (monitorTVAndPC) {
+			Boolean shouldPressButtonBecauseRelayIsOff = statusService.updateTvStatusLivelyParameters();
+			if (shouldPressButtonBecauseRelayIsOff) {
+				LOG.debug("En dehors des horaires, on ne regarde pas la télé");
+				pressOnOffButton();
+			} else {
+				LOG.debug("On laisse la télé tourner");
+			}
 		}
 
 	}
@@ -93,26 +99,29 @@ public class TvCheckScheduler {
 	 */
 	@Scheduled(cron = "7 */5 * * * *")
 	public void storeUsageInDb() throws IOException {
-		LOG.debug("Storing in Db");
-		to = new Date();
-		Map<Integer, Integer> secondsPerChannel = statusService.getSecondsPerChannel();
-		for (Integer channel : secondsPerChannel.keySet()) {
-			Integer seconds = secondsPerChannel.get(channel);
-			String channelName = getChannelName(channel);
-			logRepository.save(new LogEntry("TV", channel, channelName, null, seconds, from, to));
+		if (monitorTVAndPC) {
+
+			LOG.debug("Storing in Db");
+			to = new Date();
+			Map<Integer, Integer> secondsPerChannel = statusService.getSecondsPerChannel();
+			for (Integer channel : secondsPerChannel.keySet()) {
+				Integer seconds = secondsPerChannel.get(channel);
+				String channelName = getChannelName(channel);
+				logRepository.save(new LogEntry("TV", channel, channelName, null, seconds, from, to));
+			}
+			from = new Date();
+			secondsPerChannel.clear();
+			/**
+			 * 
+			 */
+			Map<String, Integer> secondsPc = statusService.getSecondsPerUserPc();
+			for (String userName : secondsPc.keySet()) {
+				Integer seconds = secondsPc.get(userName);
+				logRepository.save(new LogEntry("PC", null, null, userName, seconds, from, to));
+			}
+			from = new Date();
+			secondsPc.clear();
 		}
-		from = new Date();
-		secondsPerChannel.clear();
-		/**
-		 * 
-		 */
-		Map<String, Integer> secondsPc = statusService.getSecondsPerUserPc();
-		for (String userName : secondsPc.keySet()) {
-			Integer seconds = secondsPc.get(userName);
-			logRepository.save(new LogEntry("PC", null, null, userName, seconds, from, to));
-		}
-		from = new Date();
-		secondsPc.clear();
 
 	}
 

@@ -32,6 +32,11 @@ public class Task {
 
 	private Boolean open;
 
+	/** the task is temporary it is assigned to a Date here */
+	private Date date;
+
+	private Date dateCompletion;
+
 	public Boolean getOpen() {
 		return open;
 	}
@@ -39,8 +44,6 @@ public class Task {
 	public void setOpen(Boolean open) {
 		this.open = open;
 	}
-
-	private Date date;
 
 	public String getTaskName() {
 		return taskName;
@@ -96,6 +99,14 @@ public class Task {
 
 	public void setExpireAtTheEndOfTheDay(Boolean expireAtTheEndOfTheDay) {
 		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
+	}
+
+	public Date getDateCompletion() {
+		return dateCompletion;
+	}
+
+	public void setDateCompletion(Date dateCompletion) {
+		this.dateCompletion = dateCompletion;
 	}
 
 }

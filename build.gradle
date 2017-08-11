@@ -48,7 +48,7 @@ task wrapper(type: Wrapper) {
 
 remotes {
  webServer {
-    host = 'raspberrypi'
+    host = 'task.cesarsuperstar.com'
     user = 'clement'
     identity = file('id_rsa')
   }
