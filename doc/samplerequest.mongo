@@ -1,0 +1,1 @@
+ db.log.aggregate([{$match: {metricName:"TV"}} ,  { $group : { _id : { hour: { $hour: "$fromDate" } }, totalSeconds: { $sum: "$seconds" }, count: { $sum: 1 } } ] )

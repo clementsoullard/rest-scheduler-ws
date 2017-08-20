@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /tmp/
+mongodump -dtvscheduler -omongodump
+tar -cvzf dump-mongo-`date +%Y%m%d`-day.tgz mongodump/
+cp  dump-mongo-`date +%Y%m%d`-day.tgz /mnt/nas/backup-mongo/
+rm -f dump-mongo-*
+rm -rf mongodump/
+find /mnt/nas/backup-mongo/ -name *day* -mtime +7 -exec rm -f {}\;

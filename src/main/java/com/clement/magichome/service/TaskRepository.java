@@ -17,9 +17,11 @@ public interface TaskRepository extends MongoRepository<Task, String> {
 	List<Task> getTaskByDateAndOwnerAndExpireAtTheEndOfTheDayAndDone(Date date, String owner,
 			Boolean expiresAtTheEndOfTheDay, Boolean done);
 
-	List<Task> getTaskByOwnerAndExpireAtTheEndOfTheDayAndDateCompletionAfter(String owner,
+	List<Task> getTaskByOwnerAndExpireAtTheEndOfTheDayAndCompletionDateAfter(String owner,
 			Boolean expiresAtTheEndOfTheDay, Date dateCompletion);
 
-	List<Task> getTaskByDateCompletionAfterOrDateCompletionIsNullOrderByDoneAsc(Date dateCompletion);
+	List<Task> getTaskByExpireAtTheEndOfTheDayAndCompletionDateAfterOrCompletionDateIsNullOrderByDoneAsc(Boolean expireAtTheEndOfTheDay,Date dateCompletion);
+
+	List<Task> getTaskByExpireAtTheEndOfTheDayAndDateAndCompletionDateAfterOrderByDoneAsc(Boolean expireAtTheEndOfTheDay,Date date,Date dateCompletion);
 
 }

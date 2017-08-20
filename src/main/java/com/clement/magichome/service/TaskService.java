@@ -7,14 +7,22 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.clement.magichome.PropertyManager;
 import com.clement.magichome.TVSchedulerConstants;
+import com.clement.magichome.object.Achat;
 import com.clement.magichome.object.Task;
 
 @Repository
 public class TaskService {
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Resource
 	private PropertyManager propertyManager;
@@ -136,6 +144,28 @@ public class TaskService {
 	 * 
 	 * @param task
 	 */
+	public List<Task> listTaskForToday() throws Exception {
+		Query query = new Query();
+		Date today = new Date();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(today);
+		calendar.add(Calendar.HOUR, -2);
+		Date toHoursAgo = calendar.getTime();
+		query.addCriteria(new Criteria().andOperator(
+				new Criteria().orOperator(Criteria.where("expirationDate").gt(today),
+						Criteria.where("expirationDate").exists(false)),
+				new Criteria().orOperator(Criteria.where("done").is(false),
+						Criteria.where("completionDate").gt(toHoursAgo))));
+
+		List<Task> tasks = mongoTemplate.find(query, Task.class);
+
+		return tasks;
+	}
+
+	/**
+	 * 
+	 * @param task
+	 */
 	public void saveTaskForToday(Task task) {
 		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
 		task.setDate(date);
@@ -160,8 +190,8 @@ public class TaskService {
 			Task taskToUpdate = taskRepository.findOne(id);
 			task.setDate(date);
 			taskToUpdate.setDone(task.getDone());
-			if (task.getDone() && task.getDateCompletion() == null) {
-				taskToUpdate.setDateCompletion(new Date());
+			if (task.getDone() && task.getCompletionDate() == null) {
+				taskToUpdate.setCompletionDate(new Date());
 			}
 			return taskRepository.save(taskToUpdate);
 		}
@@ -218,7 +248,7 @@ public class TaskService {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.HOUR, -2);
 		List<Task> tasksPermanentTasks = taskRepository
-				.getTaskByOwnerAndExpireAtTheEndOfTheDayAndDateCompletionAfter(owner, false, calendar.getTime());
+				.getTaskByOwnerAndExpireAtTheEndOfTheDayAndCompletionDateAfter(owner, false, calendar.getTime());
 		List<Task> tasks = tasksEOD;
 		tasks.addAll(tasksPermanentTasks);
 		Date date = DateUtils.truncate(new Date(), Calendar.DATE);
@@ -234,12 +264,19 @@ public class TaskService {
 	 * @return
 	 */
 	public List<Task> getTaskForToday() {
+		Date currentDate = DateUtils.truncate(new Date(), Calendar.DATE);
+
 		getCesarTasksExpiringToday();
 		getHomeTasksExpiringToday();
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.HOUR, -2);
 		List<Task> tasksPermanentTasks = taskRepository
-				.getTaskByDateCompletionAfterOrDateCompletionIsNullOrderByDoneAsc(calendar.getTime());
+				.getTaskByExpireAtTheEndOfTheDayAndCompletionDateAfterOrCompletionDateIsNullOrderByDoneAsc(false,
+						calendar.getTime());
+		List<Task> tasksTemp = taskRepository
+				.getTaskByExpireAtTheEndOfTheDayAndDateAndCompletionDateAfterOrderByDoneAsc(true, currentDate,
+						calendar.getTime());
+		tasksPermanentTasks.addAll(tasksTemp);
 		return tasksPermanentTasks;
 	}
 }

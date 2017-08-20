@@ -2,7 +2,6 @@ package com.clement.magichome.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;

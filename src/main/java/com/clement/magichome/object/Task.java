@@ -1,5 +1,6 @@
 package com.clement.magichome.object;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -8,21 +9,10 @@ public class Task {
 
 	@Id
 	private String id;
-
-	public Task(String taskName, Boolean done, Date date, String owner, Boolean expireAtTheEndOfTheDay) {
-		super();
-		this.taskName = taskName;
-		this.done = done;
-		this.date = date;
-		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
-		this.owner = owner;
-	}
-
-	public Task() {
-	}
-
+	
+	/** Label of the task */
 	private String taskName;
-
+/** */
 	private String owner;
 
 	private Boolean done;
@@ -35,7 +25,28 @@ public class Task {
 	/** the task is temporary it is assigned to a Date here */
 	private Date date;
 
-	private Date dateCompletion;
+	/** The date of expiration of the task */
+	private Date expirationDate;
+
+	private Date completionDate;
+
+	public Task(String taskName, Boolean done, Date date, String owner, Boolean expireAtTheEndOfTheDay) {
+		super();
+		this.taskName = taskName;
+		this.done = done;
+		this.date = date;
+		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
+		if (expireAtTheEndOfTheDay) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			calendar.add(Calendar.DATE, 1);
+			expirationDate = calendar.getTime();
+		}
+		this.owner = owner;
+	}
+
+	public Task() {
+	}
 
 	public Boolean getOpen() {
 		return open;
@@ -101,12 +112,21 @@ public class Task {
 		this.expireAtTheEndOfTheDay = expireAtTheEndOfTheDay;
 	}
 
-	public Date getDateCompletion() {
-		return dateCompletion;
+	public Date getCompletionDate() {
+		return completionDate;
+		
 	}
 
-	public void setDateCompletion(Date dateCompletion) {
-		this.dateCompletion = dateCompletion;
+	public void setCompletionDate(Date dateCompletion) {
+		this.completionDate = dateCompletion;
+	}
+
+	public Date getExpirationDate() {
+		return expirationDate;
+	}
+
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
 	}
 
 }
